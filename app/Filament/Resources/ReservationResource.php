@@ -152,7 +152,7 @@ class ReservationResource extends Resource
 
                     Section::make('Assigning Room')
                         ->schema([
-                            Repeater::make('Rooms')
+                            Repeater::make('reservationRooms')
                                 ->cloneable()
                                 ->relationship('reservationRooms')
                                 ->schema([
@@ -270,7 +270,7 @@ class ReservationResource extends Resource
     {
         $lowestCheckInDate = null;
         $lowestCheckInRecord = null;
-        $totalRenst = collect($get('Rooms'));
+        $totalRenst = collect($get('reservationRooms'));
         foreach ($totalRenst as $key => $value) {
             $checkInDate = Carbon::parse($value['check_in']);
             if ($lowestCheckInDate === null || $checkInDate->lt($lowestCheckInDate)) {
@@ -291,8 +291,8 @@ class ReservationResource extends Resource
         }
 
         // dd($lowestCheckInRecord);
-        // dd(collect($get('Rooms')));
-        $totalRent = collect($get('Rooms'))->sum(function ($item) {
+        // dd(collect($get('reservationRooms')));
+        $totalRent = collect($get('reservationRooms'))->sum(function ($item) {
             $checkIn = Carbon::parse($item['check_in'])->format('Y-m-d');
             $checkOut = Carbon::parse($item['check_out'])->format('Y-m-d');
             $checkIn1 = Carbon::parse($checkIn);
@@ -351,7 +351,7 @@ class ReservationResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('rooms_sum_quantity')->sum('rooms', 'quantity')->label('Total Room'),
+                Tables\Columns\TextColumn::make('rooms_sum_quantity')->sum('reservationRooms', 'quantity')->label('Total Room'),
 
                 Tables\Columns\TextColumn::make('status')
                     ->color(fn (string $state): string => match ($state) {

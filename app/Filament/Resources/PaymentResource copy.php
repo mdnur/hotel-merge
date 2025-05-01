@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentResource\Pages;
-use App\Filament\Resources\PaymentResource\RelationManagers;
 use App\Models\Card;
 use App\Models\Payment;
 use App\Models\PaymentType;
@@ -12,15 +11,14 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = "Payment Management";
+
+    protected static ?string $navigationGroup = 'Payment Management';
 
     public static function form(Form $form): Form
     {
@@ -29,7 +27,7 @@ class PaymentResource extends Resource
                 Forms\Components\TextInput::make('amount')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('transactions_no')
+                Forms\Components\TextInput::make('tnx')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('description')
                     ->maxLength(255),
@@ -48,8 +46,8 @@ class PaymentResource extends Resource
                     ->options(Card::all()->pluck('card_no', 'id'))
                     ->searchable()
                     ->required(),
-                    Forms\Components\DateTimePicker::make('created_at')
-                    ->readonly()
+                Forms\Components\DateTimePicker::make('created_at')
+                    ->readonly(),
             ]);
     }
 
@@ -60,7 +58,7 @@ class PaymentResource extends Resource
                 Tables\Columns\TextColumn::make('amount')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('transactions_no')
+                Tables\Columns\TextColumn::make('tnx')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('paymentType.name')
                     ->numeric()

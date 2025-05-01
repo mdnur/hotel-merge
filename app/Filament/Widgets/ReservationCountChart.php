@@ -2,25 +2,28 @@
 
 namespace App\Filament\Widgets;
 
-use Carbon\Carbon;
 use App\Models\Reservation;
+use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class ReservationCountChart extends ChartWidget
 {
     use InteractsWithPageFilters;
+
     protected static ?string $heading = null;
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
+
     protected static ?int $sort = 2;
 
     public function getHeading(): string
     {
-        $startDate = !is_null($this->filters['startDate'] ?? null) ?
+        $startDate = ! is_null($this->filters['startDate'] ?? null) ?
             Carbon::parse($this->filters['startDate']) :
             Carbon::now()->startOfMonth();
 
-        $endDate = !is_null($this->filters['endDate'] ?? null) ?
+        $endDate = ! is_null($this->filters['endDate'] ?? null) ?
             Carbon::parse($this->filters['endDate']) :
             now();
 
@@ -28,16 +31,16 @@ class ReservationCountChart extends ChartWidget
             return $startDate->format('F Y');
         }
 
-        return $startDate->format('F Y') . ' - ' . $endDate->format('F Y');
+        return $startDate->format('F Y').' - '.$endDate->format('F Y');
     }
 
     protected function getData(): array
     {
-        $startDate = !is_null($this->filters['startDate'] ?? null) ?
+        $startDate = ! is_null($this->filters['startDate'] ?? null) ?
             Carbon::parse($this->filters['startDate']) :
             Carbon::now()->startOfMonth();
 
-        $endDate = !is_null($this->filters['endDate'] ?? null) ?
+        $endDate = ! is_null($this->filters['endDate'] ?? null) ?
             Carbon::parse($this->filters['endDate']) :
             now();
 

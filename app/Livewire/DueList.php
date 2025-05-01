@@ -21,7 +21,7 @@ class DueList extends Component
 
     public $payment_type_id;
 
-    public $transactions_no;
+    public $tnx;
 
     public $data = [];
 
@@ -42,7 +42,7 @@ class DueList extends Component
             'user_id' => auth()->user()->id,
             'amount' => $this->amount,
             'payment_type_id' => $this->payment_type_id ?? null,
-            'transactions_no' => $this->transactions_no,
+            'tnx' => $this->tnx,
         ];
         // dd($this->payment_type_id);
         // dd($this->data);
@@ -57,7 +57,7 @@ class DueList extends Component
         // $this->emit('refreshTable'); // Refresh the table
 
         $this->dispatch('close-modal', id: 'receive-payment-modal');
-        $this->reset(['amount', 'payment_type_id', 'transactions_no']);
+        $this->reset(['amount', 'payment_type_id', 'tnx']);
         $this->render(); // Livewire component refresh
     }
 

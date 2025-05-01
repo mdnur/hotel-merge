@@ -29,7 +29,7 @@ class PaymentsRelationManager extends RelationManager
                 // Forms\Components\TextInput::make('amount')
                 //     ->required()
                 //     ->numeric(),
-                // Forms\Components\TextInput::make('transactions_no')
+                // Forms\Components\TextInput::make('tnx')
                 //     ->maxLength(255),
                 // Forms\Components\TextInput::make('description')
                 //     ->maxLength(255),
@@ -86,7 +86,7 @@ class PaymentsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('amount')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('transactions_no')
+                Tables\Columns\TextColumn::make('tnx')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('paymentType.name')
                     ->numeric()

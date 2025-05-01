@@ -106,7 +106,7 @@ class CardResource extends Resource
                         Forms\Components\TextInput::make('amount')
                             ->numeric()
                             ->required(),
-                        Forms\Components\TextInput::make('transactions_no'),
+                        Forms\Components\TextInput::make('tnx'),
                     ])->action(function (Card $record, array $data) {
                         $data['card_id'] = $record->id;
                         $data['user_id'] = auth()->user()->id;
