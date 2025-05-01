@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('note')->nullable();
             $table->foreignId('user_id')->constrained('users');
             $table->enum('status', ['confirm', 'arrived', 'cancelled'])->default('confirm');
+            $table->string('reference')->nullable();
+
             $table->timestamps();
         });
     }
