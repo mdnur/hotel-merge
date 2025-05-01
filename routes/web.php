@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DownloadInvoiceController;
+use App\Livewire\RoomBookingChart;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
@@ -33,3 +34,5 @@ Route::get('/test', function () {
     dd($CheckOutStartTime);
 
 });
+
+Route::get('/test2', [RoomBookingChart::class, 'render']);

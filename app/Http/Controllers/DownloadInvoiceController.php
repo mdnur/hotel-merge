@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Filament\Pages\DailyRoomSheet;
-use Illuminate\Support\Facades\Storage;
 
 use function Spatie\LaravelPdf\Support\pdf;
 
@@ -19,19 +18,14 @@ class DownloadInvoiceController
 
     public function download($date)
     {
-        // dd($date);
-        // DailyRoomSheet::downloadData($date);
         $filePath = (new DailyRoomSheet)->downloadData($date);
 
-        // return $filePath;
-        if (! Storage::exists($filePath)) {
+        $fullPath = storage_path("app/{$filePath}");
+
+        if (! file_exists($fullPath)) {
             abort(404, 'File not found.');
         }
 
-        return response()->streamDownload(function () use ($filePath) {
-            echo Storage::get($filePath);
-            Storage::delete($filePath); // delete after download
-
-        }, $filePath);
+        return response()->download($fullPath)->deleteFileAfterSend(true);
     }
 }

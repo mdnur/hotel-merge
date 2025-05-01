@@ -71,6 +71,7 @@ class DailyRoomSheet extends Page
                         ->action(function () {
                             $this->loadData();
                         })->disabled(fn () => blank($this->date)),
+
                     Action::make('Download')
                         ->url(fn () => $this->date ? route('download.invoice', ['date' => Carbon::parse($this->date)->format('d-m-Y')]) : null)
                         ->openUrlInNewTab()
@@ -239,7 +240,6 @@ class DailyRoomSheet extends Page
     {
         $this->date = Carbon::parse($date)->format('Y-m-d');
 
-        // Check if date is selected
         if ($this->date == null) {
             Notification::make()
                 ->title('NO Date Selected')
@@ -247,10 +247,9 @@ class DailyRoomSheet extends Page
                 ->warning()
                 ->send();
 
-            return;
+            return null;
         }
 
-        // Check if data exists for the selected date
         if ($this->setData()->first() == null && $this->expenditure()->first() == null) {
             Notification::make()
                 ->title('No Data Exists')
@@ -258,23 +257,10 @@ class DailyRoomSheet extends Page
                 ->warning()
                 ->send();
 
-            return;
+            return null;
         }
 
-        // Save the PDF
-        $this->savePDF();
-
-        // Define the file path
-        $filePath = "{$this->date}-invoice.pdf";
-
-        // Notify user that download is starting
-
-        return $filePath;
-        // Stream the download and delete the file afterward
-        // return response()->streamDownload(function () use ($filePath) {
-        //     echo Storage::get($filePath);
-        //     Storage::delete($filePath); // delete after download is sent
-        // }, $filePath);
+        return $this->savePDF(); // now returns relative path used in Storage
     }
 
     public function setData()
@@ -294,16 +280,19 @@ class DailyRoomSheet extends Page
     public function savePDF()
     {
         $this->date = Carbon::parse($this->date)->format('Y-m-d');
-        $pdf = Pdf::view('pdf.invoice', [
+        $filePath = "{$this->date}-invoice.pdf";
+
+        // Save directly into storage/app/
+        Pdf::view('pdf.invoice', [
             'data' => $this->data,
             'expenditures' => $this->expenditures,
             'totalsRentByMonth' => $this->totalsRentByMonth,
             'totalExpenditure' => $this->totalExpenditure,
             'dueBeforeToday' => $this->dueBeforeToday,
             'date' => $this->date,
-        ])->save(storage_path("app/{$this->date}-invoice.pdf"));
+        ])->save(storage_path("app/{$filePath}"));
 
-        return $pdf;
+        return $filePath;
     }
 
     public function downloadPDF()

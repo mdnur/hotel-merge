@@ -133,10 +133,11 @@ class DueList extends Component
     public function openPaymentHistoryModal($cardNo)
     {
         // dd($cardNo);
-        $card = Card::where('card_no', $cardNo)->first();
+        $card = Card::where('card_no', $cardNo)->first()->payments;
         // dd($card);
         // Get all paymentTypes for this card
-        $this->payments = Payment::where('card_id', $card->id)->get();
+        // $this->payments = Payment::where('card_id', $card->id)->get();
+        $this->payments = Card::where('card_no', $cardNo)->first()->payments;
         // dd($this->payments);
 
         $this->dispatch('open-modal', id: 'payment-history-modal');
