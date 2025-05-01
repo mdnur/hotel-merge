@@ -56,35 +56,37 @@
     <br>
     Total price: {{ $this->data['total_rent'] }} Taka
     <br>
-    {{-- {{ collect($data['payments'])->sum('advance') }}Taka --}}
+    {{-- {{ collect($data['payments'])->sum('amount') }}Taka --}}
     @if(collect($data['payments'])->count() > 1)
 
     @php
     $index =0;
     @endphp
     @foreach ($data['payments'] as $payment)
-    Advance {{ ++$index }}: {{ $payment['advance'] }} by {{ \App\Models\PaymentType::findOrFail($payment['payment_type_id'])->first()->name }} ({{ $payment['Last3Digit'] }})
+    Advance {{ ++$index }}: {{ $payment['amount'] }} by {{ \App\Models\PaymentType::findOrFail($payment['payment_type_id'])->first()->name }} {{ $payment['tnx'] ?? '' ? '(' . $payment['tnx'] . ')' : '' }}
+
     <br>
     @endforeach
     @endif
 
     {{-- @foreach ($data['payments'] as $payment)
-    TXN({{ \App\Models\PaymentType::findOrFail($payment['payment_type_id'])->first()->name }}):{{ $payment['Last3Digit'] }}
+    TXN({{ \App\Models\PaymentType::findOrFail($payment['payment_type_id'])->first()->name }}):{{ $payment['tnx'] }}
     @endforeach
     <br> --}}
     @if(collect($data['payments'])->count() > 1)
-    Total Advance : {{ collect($data['payments'])->sum('advance') }} Taka
+    Total Advance : {{ collect($data['payments'])->sum('amount') }} Taka
 
     @else
-    Total Advance : {{ collect($data['payments'])->sum('advance') }} Taka By
+    Total Advance : {{ collect($data['payments'])->sum('amount') }} Taka By
 
-    {{ \App\Models\PaymentType::findOrFail(collect($data['payments'])->first()['payment_type_id'])->first()->name }} ({{ collect($data['payments'])->first()['Last3Digit'] }})
+    {{ \App\Models\PaymentType::findOrFail(collect($data['payments'])->first()['payment_type_id'])->first()->name }} {{ collect($data['payments'])->first()['tnx'] ?? '' ? '(' . collect($data['payments'])->first()['tnx'] . ')' : '' }}
+
     @endif
     <br>
-    Due: {{ $this->data['total_rent'] - collect($data['payments'])->sum('advance') }} Taka
+    Due: {{ $this->data['total_rent'] - collect($data['payments'])->sum('amount') }} Taka
     <br>
     {{-- ({{ \App\Models\PaymentType::find($this->data['payments']['payment_type_id'])->name }}) Last 3 Digits: {{
-    $this->data['payments']['Last3Digit'] }} --}}
+    $this->data['payments']['tnx'] }} --}}
     Booked By: {{ \App\Models\User::find($this->data['user_id'])->name }}
     @if ($this->data['reference'] != null)
     <br>

@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\PaymentType;
 use App\Models\Reservation;
 use App\Models\RoomType;
+use App\Models\User;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
@@ -132,17 +133,21 @@ class ReservationResource extends Resource
                                 ->schema([
                                     Forms\Components\Select::make('payment_type_id')
                                         ->label('Payment Type')
-                                        ->options(fn () => PaymentType::pluck('name', 'id'))
+                                        ->options(PaymentType::pluck('name', 'id'))
                                         ->required(),
 
-                                    Forms\Components\TextInput::make('advance')
-                                        ->label('Advance Amount')
+                                    Forms\Components\Select::make('user_id')
+                                        ->label('Payment received by')
+                                        ->default(auth()->id())
+                                        ->disabled()
+                                        ->dehydrated() // Ensures the value is still saved
+                                        ->options(User::pluck('name', 'id'))
+                                        ->required(),
+                                    Forms\Components\TextInput::make('amount')
                                         ->required()
                                         ->numeric(),
-
-                                    Forms\Components\TextInput::make('Last3Digit')
-                                        ->label('Last 3 digit')
-                                        ->numeric(),
+                                    Forms\Components\TextInput::make('tnx')
+                                        ->string(),
                                 ])
                                 ->columns(2)
                                 ->collapsible(),
@@ -450,7 +455,7 @@ class ReservationResource extends Resource
                     ->button()
                     ->icon('heroicon-o-envelope-open')
                     ->action(function (Reservation $record) {
-                        $reservation = Reservation::whereId($record->id)->with('customer')->with('rooms')->with('user')->with('payment')->first();
+                        $reservation = Reservation::whereId($record->id)->with('customer')->with('rooms')->with('user')->with('payments')->first();
 
                         self::sendConfirmation($reservation);
                     })->visible(function (Reservation $record) {
@@ -461,7 +466,7 @@ class ReservationResource extends Resource
                     ->button()
                     ->icon('heroicon-o-envelope-open')
                     ->action(function (Reservation $record) {
-                        $reservation = Reservation::whereId($record->id)->with('customer')->with('rooms')->with('user')->with('payment')->first();
+                        $reservation = Reservation::whereId($record->id)->with('customer')->with('rooms')->with('user')->with('payments')->first();
                         self::sendConfirmation($reservation, 'Re-');
                     })->visible(function (Reservation $record) {
                         return $record->confrim_message_sent_at != null;
@@ -499,18 +504,20 @@ class ReservationResource extends Resource
     public static function sendConfirmation($reservation, $type = '')
     {
         $message = $type."Confirmation Message from Hotel Amin International.\n".
-            'Reservation No: '.$reservation->reservation_no."\n".
-            'Booking Date: '.Carbon::parse($reservation->booking_date)->format('Y-m-d')."\n".
-            'Name: '.$reservation->customer->name."\n".
-            'Mobile Number: '.$reservation->customer->phone."\n".
-            'Address: '.$reservation->customer->address."\n";
+        'Reservation No: '.$reservation->reservation_no."\n".
+        'Booking Date: '.Carbon::parse($reservation->booking_date)->format('Y-m-d')."\n".
+        'Name: '.$reservation->customer->name."\n".
+        'Mobile Number: '.$reservation->customer->phone."\n".
+        'Address: '.$reservation->customer->address."\n";
+
         $message .= 'Room Type: ';
         $sum = 0;
         foreach ($reservation->rooms as $room) {
             $sum += $room->quantity;
-            $message .= RoomType::find($room->room_type_id)->name.'('.$room->quantity.')';
+            $message .= RoomType::find($room->room_type_id)->name.'('.$room->quantity.') ';
         }
         $message .= "\nTotal room: ".$sum."\n";
+
         $message .= 'Check-in: '.Carbon::parse($reservation->check_in_date)->format('Y-m-d').' ('.\App\Models\HotelSetting::find(1)->description.")\n".
             'Check-out: '.Carbon::parse($reservation->check_out_date)->format('Y-m-d').' ('.\App\Models\HotelSetting::find(2)->description.")\n";
 
@@ -520,16 +527,50 @@ class ReservationResource extends Resource
         }
         $message .= 'Room price: '.rtrim($rent, ' / ')." Taka\n";
         $message .= 'Total price: '.$reservation->total_rent." Taka\n";
-        $message .= 'Advance: '.$reservation->payment->advance." Taka\n";
-        $message .= 'Due: '.$reservation->total_rent - $reservation->payment->advance." Taka\n";
-        $message .= '('.\App\Models\PaymentType::find($reservation->payment->payment_type_id)->name.')'.'Last 3 Digits:'.$reservation->payment->Last3Digit."\n";
+
+        // 🔁 Loop through all payments
+        $totalAdvance = 0;
+        $index = 1;
+        foreach ($reservation->payments as $payment) {
+            $paymentType = \App\Models\PaymentType::find($payment->payment_type_id)?->name ?? 'N/A';
+            if ($reservation->payments->count() > 1) {
+                $message .= 'Advance '.$index++.': '.$payment->amount.' Taka by '.$paymentType;
+                if ($payment->tnx) {
+                    $message .= ' ('.$payment->tnx.')';
+                }
+                $message .= "\n";
+
+            }
+            $totalAdvance += $payment->amount;
+        }
+        // ;
+        // dd(\App\Models\PaymentType::find($reservation->payments->first()->payment_type_id)?->name);
+        if ($reservation->payments->count() > 1) {
+            $message .= 'Total Advance: '.$totalAdvance." Taka\n";
+        } else {
+            $firstPayment = $reservation->payments->first();
+            $paymentTypeName = \App\Models\PaymentType::find($firstPayment->payment_type_id)?->name ?? 'N/A';
+
+            $message .= 'Total Advance: '.$totalAdvance.' Taka by '.$paymentTypeName;
+
+            if (! empty($firstPayment->tnx)) {
+                $message .= ' ('.$firstPayment->tnx.')';
+            }
+
+            $message .= "\n";
+        }
+        // $message .= ' by '.$reservation->payments()->first()->
+        $message .= 'Due: '.($reservation->total_rent - $totalAdvance)."Taka\n";
+
         $message .= 'Booked By: '.$reservation->user->name."\n";
         if ($reservation->reference != null) {
             $message .= 'Reference by: '.$reservation->reference."\n";
         }
-        $message .= 'Note: '.\App\Models\HotelSetting::find(3)->description."\n";
-        $message .= 'Our Cancellation Policy:'.\App\Models\HotelSetting::find(4)->description;
 
+        $message .= 'Note: '.\App\Models\HotelSetting::find(3)->description."\n";
+        $message .= 'Our Cancellation Policy: '.\App\Models\HotelSetting::find(4)->description;
+
+        // dd($message);
         $sms = new BDBulkSms($reservation->customer->phone, $message);
         if ($sms->send()) {
             $reservation->confrim_message_sent_at = Carbon::now();

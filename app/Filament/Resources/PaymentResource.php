@@ -6,6 +6,7 @@ use App\Filament\Resources\PaymentResource\Pages;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\Reservation;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Form;
@@ -29,7 +30,15 @@ class PaymentResource extends Resource
                     ->label('Payment Type')
                     ->options(PaymentType::pluck('name', 'id'))
                     ->required(),
-                Forms\Components\TextInput::make('advance')
+
+                Forms\Components\Select::make('user_id')
+                    ->label('Payment received by')
+                    ->default(auth()->id())
+                    ->disabled()
+                    ->dehydrated() // Ensures the value is still saved
+                    ->options(User::pluck('name', 'id'))
+                    ->required(),
+                Forms\Components\TextInput::make('amount')
                     ->required()
                     ->numeric(),
                 MorphToSelect::make('paymentable')
@@ -42,7 +51,7 @@ class PaymentResource extends Resource
                     ])
                     ->searchable()
                     ->preload(),
-                Forms\Components\TextInput::make('Last3Digit')
+                Forms\Components\TextInput::make('tnx')
                     ->required()
                     ->numeric(),
             ]);

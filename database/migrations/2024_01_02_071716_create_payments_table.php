@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('payment_type_id')->constrained('payment_types')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             // $table->foreignId('commentable_id')->constrained('payment_types')->onDelete('cascade')->onUpdate('cascade');
             $table->integer('paymentable_id');
             $table->string('paymentable_type');
-            $table->integer('advance');
-            $table->integer('Last3Digit');
+            $table->integer('amount');
+            $table->string('tnx')->nullable();
             $table->timestamps();
         });
     }

@@ -3,7 +3,10 @@
 namespace App\Filament\Resources\ReservationResource\RelationManagers;
 
 use App\Models\PaymentType;
+use App\Models\Reservation;
+use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -21,10 +24,28 @@ class PaymentRelationManager extends RelationManager
                     ->label('Payment Type')
                     ->options(PaymentType::pluck('name', 'id'))
                     ->required(),
-                Forms\Components\TextInput::make('advance')
+
+                Forms\Components\Select::make('user_id')
+                    ->label('Payment received by')
+                    ->default(auth()->id())
+                    ->disabled()
+                    ->dehydrated() // Ensures the value is still saved
+                    ->options(User::pluck('name', 'id'))
+                    ->required(),
+                Forms\Components\TextInput::make('amount')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('Last3Digit')
+                MorphToSelect::make('paymentable')
+                    ->default(MorphToSelect\Type::make(Reservation::class)->titleAttribute('reservation_no'))
+                    ->label('Payment Type')
+                    ->types([
+                        MorphToSelect\Type::make(Reservation::class)->titleAttribute('reservation_no'),
+                        // MorphToSelect\Type::make(User::class)->titleAttribute('email'),
+                        // MorphToSelect\Type::make(Comment::class)->titleAttribute('id'),
+                    ])
+                    ->searchable()
+                    ->preload(),
+                Forms\Components\TextInput::make('txn')
                     ->required()
                     ->numeric(),
             ]);
