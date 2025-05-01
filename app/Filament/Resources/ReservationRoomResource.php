@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\RoomResource\Pages;
-use App\Filament\Resources\RoomResource\RelationManagers;
-use App\Models\Room;
+use App\Filament\Resources\ReservationRoomResource\Pages;
+use App\Models\Reservation;
+use App\Models\ReservationRoom;
 use App\Models\RoomType;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,27 +12,34 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class RoomResource extends Resource
+class ReservationRoomResource extends Resource
 {
-    protected static ?string $model = Room::class;
+    protected static ?string $model = ReservationRoom::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = "Rooms";
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('room_type_id')
+                    ->label('Payment Types')
                     ->options(RoomType::pluck('name', 'id'))
                     ->required(),
-                Forms\Components\TextInput::make('reservation_id')
-                    ->datalist(Room::pluck('reservation_id', 'id'))
-                    ->required()
-                    ->numeric(),
                 Forms\Components\DatePicker::make('check_in')
+                    ->native(false)
                     ->required(),
                 Forms\Components\DatePicker::make('check_out')
+                    ->native(false)
+                    ->required(),
+                // Forms\Components\TextInput::make('reservation_id')
+                //     ->required()
+                //     ->numeric(),
+
+                Forms\Components\Select::make('reservation_id')
+                    ->label('Reservation No')
+                    ->options(Reservation::pluck('reservation_no', 'id'))
+                    ->searchable()
                     ->required(),
                 Forms\Components\TextInput::make('quantity')
                     ->required()
@@ -48,9 +55,7 @@ class RoomResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('roomType.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('reservation_id')
+
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('check_in')
@@ -58,6 +63,9 @@ class RoomResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('check_out')
                     ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('reservation.reservation_no')
+                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('quantity')
                     ->numeric()
@@ -97,9 +105,9 @@ class RoomResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListRooms::route('/'),
-            'create' => Pages\CreateRoom::route('/create'),
-            'edit' => Pages\EditRoom::route('/{record}/edit'),
+            'index' => Pages\ListReservationRooms::route('/'),
+            'create' => Pages\CreateReservationRoom::route('/create'),
+            'edit' => Pages\EditReservationRoom::route('/{record}/edit'),
         ];
     }
 }

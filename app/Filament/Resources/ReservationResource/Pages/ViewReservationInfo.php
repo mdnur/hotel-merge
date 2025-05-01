@@ -26,7 +26,7 @@ class ViewReservationInfo extends ViewRecord
 
     public function openNewUserModal($type)
     {
-        $reservation = Reservation::whereId($this->record->id)->with('customer')->with('rooms')->with('user')->with('payments')->first();
+        $reservation = Reservation::whereId($this->record->id)->with('customer')->with('reservationRooms')->with('user')->with('payments')->first();
         $this->sendConfigrmation($reservation, $type);
     }
 
@@ -41,7 +41,7 @@ class ViewReservationInfo extends ViewRecord
 
         $message .= 'Room Type: ';
         $sum = 0;
-        foreach ($reservation->rooms as $room) {
+        foreach ($reservation->reservationRooms as $room) {
             $sum += $room->quantity;
             $message .= RoomType::find($room->room_type_id)->name.'('.$room->quantity.') ';
         }
@@ -51,7 +51,7 @@ class ViewReservationInfo extends ViewRecord
             'Check-out: '.Carbon::parse($reservation->check_out_date)->format('Y-m-d').' ('.\App\Models\HotelSetting::find(2)->description.")\n";
 
         $rent = '';
-        foreach ($reservation->rooms as $room) {
+        foreach ($reservation->reservationRooms as $room) {
             $rent .= $room['rent'].' / ';
         }
         $message .= 'Room price: '.rtrim($rent, ' / ')." Taka\n";

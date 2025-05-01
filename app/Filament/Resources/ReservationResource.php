@@ -128,7 +128,6 @@ class ReservationResource extends Resource
                     Section::make('Payments')
                         ->schema([
                             Forms\Components\Repeater::make('payments')
-                                ->label('Payment Entries')
                                 ->relationship('payments') // THIS is where the morphMany goes
                                 ->schema([
                                     Forms\Components\Select::make('payment_type_id')
@@ -146,19 +145,16 @@ class ReservationResource extends Resource
                                     Forms\Components\TextInput::make('amount')
                                         ->required()
                                         ->numeric(),
-                                    Forms\Components\TextInput::make('tnx')
-                                        ->string(),
+                                    Forms\Components\TextInput::make('tnx'),
                                 ])
-                                ->columns(2)
-                                ->collapsible(),
-                        ])
-                        ->columnSpan(1), // No ->relationship() on Section
+                                ->columns(2),
+                        ])->collapsible()->columnSpan(1), // No ->relationship() on Section
 
                     Section::make('Assigning Room')
                         ->schema([
                             Repeater::make('Rooms')
                                 ->cloneable()
-                                ->relationship('rooms')
+                                ->relationship('reservationRooms')
                                 ->schema([
                                     Forms\Components\Select::make('room_type_id')
                                         ->label('Room Type')
@@ -455,7 +451,7 @@ class ReservationResource extends Resource
                     ->button()
                     ->icon('heroicon-o-envelope-open')
                     ->action(function (Reservation $record) {
-                        $reservation = Reservation::whereId($record->id)->with('customer')->with('rooms')->with('user')->with('payments')->first();
+                        $reservation = Reservation::whereId($record->id)->with('customer')->with('reservationRooms')->with('user')->with('payments')->first();
 
                         self::sendConfirmation($reservation);
                     })->visible(function (Reservation $record) {
@@ -466,7 +462,7 @@ class ReservationResource extends Resource
                     ->button()
                     ->icon('heroicon-o-envelope-open')
                     ->action(function (Reservation $record) {
-                        $reservation = Reservation::whereId($record->id)->with('customer')->with('rooms')->with('user')->with('payments')->first();
+                        $reservation = Reservation::whereId($record->id)->with('customer')->with('reservationRooms')->with('user')->with('payments')->first();
                         self::sendConfirmation($reservation, 'Re-');
                     })->visible(function (Reservation $record) {
                         return $record->confrim_message_sent_at != null;
@@ -485,7 +481,9 @@ class ReservationResource extends Resource
         return [
             RelationManagers\PaymentRelationManager::class,
             RelationManagers\CustomerRelationManager::class,
-            RelationManagers\RoomsRelationManager::class,
+            // RelationManagers\RoomsRelationManager::class,
+            RelationManagers\ReservationRoomsRelationManager::class,
+
         ];
     }
 
@@ -512,7 +510,7 @@ class ReservationResource extends Resource
 
         $message .= 'Room Type: ';
         $sum = 0;
-        foreach ($reservation->rooms as $room) {
+        foreach ($reservation->reservation as $room) {
             $sum += $room->quantity;
             $message .= RoomType::find($room->room_type_id)->name.'('.$room->quantity.') ';
         }
@@ -522,7 +520,7 @@ class ReservationResource extends Resource
             'Check-out: '.Carbon::parse($reservation->check_out_date)->format('Y-m-d').' ('.\App\Models\HotelSetting::find(2)->description.")\n";
 
         $rent = '';
-        foreach ($reservation->rooms as $room) {
+        foreach ($reservation->reservation as $room) {
             $rent .= $room['rent'].' / ';
         }
         $message .= 'Room price: '.rtrim($rent, ' / ')." Taka\n";
