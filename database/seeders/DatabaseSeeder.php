@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Customer;
+use App\Models\ExpenseType;
 use App\Models\HotelSetting;
 use App\Models\Payment;
 use App\Models\PaymentType;
@@ -65,17 +66,17 @@ class DatabaseSeeder extends Seeder
 
         // User::factory(4)->create();
 
-        PaymentType::create(['name' => 'Bkash']);
-        PaymentType::create(['name' => 'Nagad']);
-        PaymentType::create(['name' => 'Rocket']);
+        // PaymentType::create(['name' => 'Bkash']);
+        // PaymentType::create(['name' => 'Nagad']);
+        // PaymentType::create(['name' => 'Rocket']);
 
         // Customer::factory(10)->create();
 
-        RoomType::create(['name' => 'Super Deluxe couple', 'room_rent' => 2250]);
-        RoomType::create(['name' => 'Deluxe couple', 'room_rent' => 2000]);
-        RoomType::create(['name' => 'Eco Deluxe couple', 'room_rent' => 1500]);
-        RoomType::create(['name' => 'Deluxe Double', 'room_rent' => 3000]);
-        RoomType::create(['name' => 'Family Suits', 'room_rent' => 3500]);
+        // RoomType::create(['name' => 'Super Deluxe couple', 'room_rent' => 2250]);
+        // RoomType::create(['name' => 'Deluxe couple', 'room_rent' => 2000]);
+        // RoomType::create(['name' => 'Eco Deluxe couple', 'room_rent' => 1500]);
+        // RoomType::create(['name' => 'Deluxe Double', 'room_rent' => 3000]);
+        // RoomType::create(['name' => 'Family Suits', 'room_rent' => 3500]);
 
         HotelSetting::create([
             'name' => 'Check in time',
@@ -139,6 +140,133 @@ class DatabaseSeeder extends Seeder
         // Reservation::factory(10)->create();
 
         // Room::factory(10)->create();
+
+        RoomType::create(['name' => 'Super Deluxe couple', 'room_rent' => 2250]); // 1
+        RoomType::create(['name' => 'Deluxe couple', 'room_rent' => 2000]); // 2
+        RoomType::create(['name' => 'Eco Deluxe couple', 'room_rent' => 1500]); // 3
+        RoomType::create(['name' => 'Deluxe Double', 'room_rent' => 3000]); // 4
+        RoomType::create(['name' => 'Family Suits', 'room_rent' => 3500]); // 5
+        RoomType::create(['name' => 'Premium Couple', 'room_rent' => 2800]); // 6
+        RoomType::create(['name' => 'Premium Three bed', 'room_rent' => 3300]); // 7
+        RoomType::create(['name' => 'Premium Double bed', 'room_rent' => 4000]); // 8
+        RoomType::create(['name' => 'Royal Suits', 'room_rent' => 5000]); // 9
+
+        Room::create(['room_no' => '101', 'room_type_id' => 2]);
+        Room::create(['room_no' => '102', 'room_type_id' => 2]);
+        Room::create(['room_no' => '103', 'room_type_id' => 4]);
+        Room::create(['room_no' => '104', 'room_type_id' => 4]);
+        Room::create(['room_no' => '105', 'room_type_id' => 2]);
+        Room::create(['room_no' => '106', 'room_type_id' => 2]);
+        Room::create(['room_no' => '107', 'room_type_id' => 4]);
+        Room::create(['room_no' => '108', 'room_type_id' => 2]);
+        Room::create(['room_no' => '109', 'room_type_id' => 5]);
+        Room::create(['room_no' => '110', 'room_type_id' => 5]);
+        Room::create(['room_no' => '111', 'room_type_id' => 2]);
+
+        Room::create(['room_no' => '201', 'room_type_id' => 2]);
+        Room::create(['room_no' => '202', 'room_type_id' => 3]);
+        Room::create(['room_no' => '203', 'room_type_id' => 4]);
+        Room::create(['room_no' => '204', 'room_type_id' => 4]);
+        Room::create(['room_no' => '205', 'room_type_id' => 3]);
+        Room::create(['room_no' => '206', 'room_type_id' => 2]);
+        Room::create(['room_no' => '207', 'room_type_id' => 4]);
+        Room::create(['room_no' => '208', 'room_type_id' => 2]);
+        Room::create(['room_no' => '209', 'room_type_id' => 3]);
+        Room::create(['room_no' => '210', 'room_type_id' => 4]);
+        Room::create(['room_no' => '211', 'room_type_id' => 4]);
+        Room::create(['room_no' => '212', 'room_type_id' => 5]);
+        Room::create(['room_no' => '213', 'room_type_id' => 2]);
+
+        Room::create(['room_no' => '301', 'room_type_id' => 1]);
+        Room::create(['room_no' => '302', 'room_type_id' => 1]);
+        Room::create(['room_no' => '303', 'room_type_id' => 1]);
+        Room::create(['room_no' => '304', 'room_type_id' => 1]);
+        Room::create(['room_no' => '305', 'room_type_id' => 1]);
+        Room::create(['room_no' => '306', 'room_type_id' => 1]);
+        Room::create(['room_no' => '307', 'room_type_id' => 1]);
+        Room::create(['room_no' => '308', 'room_type_id' => 1]);
+        Room::create(['room_no' => '309', 'room_type_id' => 1]);
+        Room::create(['room_no' => '310', 'room_type_id' => 1]);
+        Room::create(['room_no' => '311', 'room_type_id' => 1]);
+        Room::create(['room_no' => '312', 'room_type_id' => 1]);
+        Room::create(['room_no' => '313', 'room_type_id' => 1]);
+
+        Room::create(['room_no' => '401', 'room_type_id' => 6]);
+        Room::create(['room_no' => '402', 'room_type_id' => 7]);
+        Room::create(['room_no' => '403', 'room_type_id' => 6]);
+        Room::create(['room_no' => '404', 'room_type_id' => 6]);
+        Room::create(['room_no' => '405', 'room_type_id' => 7]);
+        Room::create(['room_no' => '406', 'room_type_id' => 6]);
+        Room::create(['room_no' => '407', 'room_type_id' => 8]);
+        Room::create(['room_no' => '408', 'room_type_id' => 6]);
+        Room::create(['room_no' => '409', 'room_type_id' => 6]);
+        Room::create(['room_no' => '410', 'room_type_id' => 7]);
+        Room::create(['room_no' => '411', 'room_type_id' => 7]);
+        Room::create(['room_no' => '412', 'room_type_id' => 6]);
+        Room::create(['room_no' => '413', 'room_type_id' => 6]);
+
+        Room::create(['room_no' => '501', 'room_type_id' => 6]);
+        Room::create(['room_no' => '502', 'room_type_id' => 7]);
+        Room::create(['room_no' => '503', 'room_type_id' => 6]);
+        Room::create(['room_no' => '504', 'room_type_id' => 6]);
+        Room::create(['room_no' => '505', 'room_type_id' => 7]);
+        Room::create(['room_no' => '506', 'room_type_id' => 6]);
+        Room::create(['room_no' => '507', 'room_type_id' => 8]);
+        Room::create(['room_no' => '508', 'room_type_id' => 6]);
+        Room::create(['room_no' => '509', 'room_type_id' => 6]);
+        Room::create(['room_no' => '510', 'room_type_id' => 6]);
+        Room::create(['room_no' => '511', 'room_type_id' => 7]);
+        Room::create(['room_no' => '512', 'room_type_id' => 6]);
+        Room::create(['room_no' => '513', 'room_type_id' => 6]);
+
+        Room::create(['room_no' => '601', 'room_type_id' => 6]);
+        Room::create(['room_no' => '602', 'room_type_id' => 9]);
+        Room::create(['room_no' => '603', 'room_type_id' => 9]);
+        Room::create(['room_no' => '604', 'room_type_id' => 6]);
+        Room::create(['room_no' => '605', 'room_type_id' => 7]);
+        Room::create(['room_no' => '606', 'room_type_id' => 6]);
+        Room::create(['room_no' => '607', 'room_type_id' => 8]);
+        Room::create(['room_no' => '608', 'room_type_id' => 6]);
+        Room::create(['room_no' => '609', 'room_type_id' => 6]);
+        Room::create(['room_no' => '610', 'room_type_id' => 6]);
+        Room::create(['room_no' => '611', 'room_type_id' => 6]);
+
+        ExpenseType::create(['name' => 'Salary Purpose']);
+        ExpenseType::create(['name' => 'Staff Bonus']);
+        ExpenseType::create(['name' => 'Advance Salary']);
+        ExpenseType::create(['name' => 'Electric bill']);
+        ExpenseType::create(['name' => 'Staff Related Bill']);
+        ExpenseType::create(['name' => 'Snack Bill']);
+        ExpenseType::create(['name' => 'Fruits Bill']);
+        ExpenseType::create(['name' => 'Drinking Water']);
+        ExpenseType::create(['name' => 'Online Marketing']);
+        ExpenseType::create(['name' => 'Maintenance']);
+        ExpenseType::create(['name' => 'Generator Diesel']);
+        ExpenseType::create(['name' => 'Govt Bill']);
+        ExpenseType::create(['name' => 'Donation']);
+        ExpenseType::create(['name' => 'Staff Food Bill']);
+        ExpenseType::create(['name' => 'Mobile Recharge']);
+        ExpenseType::create(['name' => 'Lift Service Purpose']);
+        ExpenseType::create(['name' => 'Any kind of tech bill']);
+        ExpenseType::create(['name' => 'PDB Line Purpose']);
+        ExpenseType::create(['name' => 'laborer Purpose']);
+        ExpenseType::create(['name' => 'Amenity Purpose']);
+        ExpenseType::create(['name' => 'Conveyance']);
+        ExpenseType::create(['name' => 'Any Kind of Element Buy']);
+        ExpenseType::create(['name' => 'Co-mission']);
+        ExpenseType::create(['name' => 'Laundry Bill']);
+        ExpenseType::create(['name' => 'Others']);
+        ExpenseType::create(['name' => 'Hotel Owner Asso']);
+
+        PaymentType::create(['name' => 'Cash']);
+        PaymentType::create(['name' => 'Bkash']);
+        PaymentType::create(['name' => 'Nagad']);
+        PaymentType::create(['name' => 'Rocket']);
+        PaymentType::create(['name' => 'CITY Bank']);
+        PaymentType::create(['name' => 'DBBL']);
+        PaymentType::create(['name' => 'BRAC Bank']);
+        PaymentType::create(['name' => 'EBL Bank']);
+        PaymentType::create(['name' => 'UCB Bank']);
 
     }
 }
