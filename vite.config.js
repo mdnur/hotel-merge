@@ -22,4 +22,9 @@ export default defineConfig({
     tailwindcss(),
     // …
   ],
+  build: {
+    rollupOptions: {
+      input: 'resources/js/app.js' // or wherever your main file is
+    }
+  }
 })
