@@ -34,13 +34,6 @@ class AppServiceProvider extends ServiceProvider
         }
         //
 
-        \Illuminate\Support\Facades\Event::listen(
-            \Illuminate\Auth\Events\Failed::class,
-            function ($event) {
-                dd($event);
-            }
-        );
-
         // Filament::registerScripts([
         //     asset('js/my-script.js'),
         // ]);
