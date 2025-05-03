@@ -7,6 +7,7 @@ use App\Policies\RolePolicy;
 use Filament\Facades\Filament;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -27,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
         //
 
         // Filament::registerScripts([
