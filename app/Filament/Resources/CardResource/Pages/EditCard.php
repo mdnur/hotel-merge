@@ -69,7 +69,7 @@ class EditCard extends EditRecord
                 // ]))
                 ->action(function (Card $record) {
                     $now = now();
-                    dd((new DailyCollectionCalculator($record))->calculate());
+                    // dd((new DailyCollectionCalculator($record))->calculate());
                     // dd($this->record->cardRooms);
                     $this->record->cardRooms->each(function ($room) use ($now) {
                         // dd($room->check_out, $record->departure_date);
