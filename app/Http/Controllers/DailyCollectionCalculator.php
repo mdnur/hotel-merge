@@ -111,128 +111,6 @@ class DailyCollectionCalculator
         }
     }
 
-    // protected function processDailyUsage(Collection $dailyUsage)
-    // {
-    //     $cardStatus = [
-    //         'due' => 0.0,
-    //         'advance' => 0.0,
-    //         'payments_index' => 0,
-    //     ];
-
-    //     $results = [];
-    //     $payments = $this->card->payments->sortBy('created_at');
-
-    //     // Group daily usage by specific_date
-    //     $groupedUsage = $dailyUsage->groupBy('specific_date');
-
-    //     foreach ($groupedUsage as $date => $usages) {
-    //         $specificDate = Carbon::parse($date);
-    //         $dailyRent = $usages->sum('daily_rent');
-    //         // dd($usages);
-
-    //         $dueBefore = $cardStatus['due'];
-    //         $advBefore = $cardStatus['advance'];
-    //         $payIndex = $cardStatus['payments_index'];
-
-    //         $roomNos = $usages->pluck('room_no')->unique()->implode(',');
-    //         $roomNos = $usages->pluck('room_no')
-    //             ->map(function ($roomNo) {
-    //                 // dd(Room::find($roomNo))
-    //                 return Room::find($roomNo)->room_no;
-    //             })
-    //             ->implode(',');
-
-    //         // Calculate total payments for the day
-    //         $totalPayToday = $this->calculatePaymentsForDay($specificDate, $cardStatus['payments_index'], $payments, $cardStatus);
-
-    //         $cashCollected = 0.0;
-    //         $dueCollection = 0.0;
-    //         $advAdjust = 0.0;
-
-    //         if ($advBefore > 0) {
-    //             $advAdjust = min($advBefore, $dailyRent);
-    //             $dailyRent -= $advAdjust;
-    //             $cardStatus['advance'] -= $advAdjust;
-    //         }
-
-    //         $newDue = $dueBefore + $dailyRent;
-
-    //         if ($totalPayToday > 0) {
-    //             if ($dueBefore > 0) {
-    //                 $dueCollection = min($dueBefore, $totalPayToday);
-    //                 $totalPayToday -= $dueCollection;
-    //                 $newDue -= $dueCollection;
-    //             }
-
-    //             if ($totalPayToday > 0) {
-    //                 $cashCollected = min($dailyRent, $totalPayToday);
-    //                 $totalPayToday -= $cashCollected;
-    //                 $newDue -= $cashCollected;
-    //             }
-
-    //             if ($totalPayToday > 0) {
-    //                 $cardStatus['advance'] += $totalPayToday;
-    //             }
-    //         }
-
-    //         $cardStatus['due'] = max(0, $newDue);
-
-    //         // Add result for the date
-    //         $results[] = [
-    //             'specific_date' => $specificDate,
-    //             'card_no' => Card::findOrFail($usages->first()['card_id'])->card_no,
-    //             'room_no' => $roomNos,
-    //             'daily_rent' => $usages->sum('daily_rent'), // Total rent including advance adjustment
-    //             'cash_collected' => $cashCollected,
-    //             'adv_adjust' => $advAdjust,
-    //             'due_collection' => $dueCollection,
-    //             'total_due' => $cardStatus['due'],
-    //             'due' => $usages->sum('daily_rent') - $advAdjust - $cashCollected,
-    //             'advance' => $cardStatus['advance'],
-    //         ];
-    //     }
-
-    //     return collect($results);
-    // }
-
-    // protected function calculatePaymentsForDay($specificDate, &$payIndex, $payments, &$cardStatus)
-    // {
-    //     $totalPayToday = 0.0;
-
-    //     // Define billing period
-    //     $billingStart = $specificDate->copy()->setTime(5, 0); // Start at 5:00 AM
-
-    //     // $billingStart = $specificDate->copy()->setTime(5, 0); // Start at 5:00 AM
-    //     $billingEnd = $billingStart->copy()->addHours(30);  // End 30 hours later (next day at 11:00 AM)
-
-    //     // $billing_start = Setting::where('key', '=', 'billing_start')->get()->first()->value;
-    //     // $filterBillingStart = explode(':', $billing_start);
-
-    //     // $billingStart = $specificDate->copy()->setTime((int) $filterBillingStart[0], (int) $filterBillingStart[1]); // Start at 5:00 AM
-
-    //     // $billing_end = Setting::where('key', '=', 'billing_end')->get()->first()->value;
-    //     // $filterBillingEnd = explode(':', $billing_end);
-    //     // $billingEnd = $specificDate->copy()->setTime(0, 00)->addDay(1)->addHour((int) $filterBillingEnd[0])->addMinute((int) $filterBillingEnd[1]);
-
-    //     // Debugging: Print billing period
-    //     // echo "Billing Start: " . $billingStart . "<br>";
-    //     // echo "Billing End: " . $billingEnd . "<br>";
-
-    //     // Iterate through payments
-    //     foreach ($payments as $payment) {
-    //         $paymentCreatedAt = Carbon::parse($payment->created_at);
-
-    //         // Debugging: Print payment creation time
-    //         // echo "Payment Created At: " . $paymentCreatedAt . "<br>";
-
-    //         // Check if payment falls within billing period
-    //         if ($paymentCreatedAt->between($billingStart, $billingEnd)) {
-    //             $totalPayToday += $payment->amount;
-    //         }
-    //     }
-
-    //     return $totalPayToday;
-    // }
     protected function processDailyUsage(Collection $dailyUsage)
     {
         $cardStatus = [
@@ -240,6 +118,8 @@ class DailyCollectionCalculator
             'advance' => 0.0,
             'payments_index' => 0,
         ];
+
+        $advanceReceivedToday = 0.0;
 
         $results = [];
         $payments = $this->card->payments->sortBy('created_at');
@@ -249,6 +129,7 @@ class DailyCollectionCalculator
         $groupedUsage = $dailyUsage->groupBy('specific_date');
 
         foreach ($groupedUsage as $date => $usages) {
+            $advanceReceivedToday = 0.0;
             $specificDate = Carbon::parse($date);
             $dailyRent = $usages->sum('daily_rent');
 
@@ -292,6 +173,7 @@ class DailyCollectionCalculator
 
                 if ($totalPayToday > 0) {
                     $cardStatus['advance'] += $totalPayToday;
+                    $advanceReceivedToday = $totalPayToday; // ✅ IMPORTANT
                 }
             }
 
@@ -308,7 +190,7 @@ class DailyCollectionCalculator
                 'due_collection' => $dueCollection,
                 'total_due' => $cardStatus['due'],
                 'due' => $usages->sum('daily_rent') - $advAdjust - $cashCollected,
-                'advance' => $cardStatus['advance'],
+                'advance' => $advanceReceivedToday,
             ];
         }
 

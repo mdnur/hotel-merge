@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\CardResource\Pages;
 
 use App\Filament\Resources\CardResource;
+use App\Http\Controllers\DailyCollectionCalculator;
 use App\Models\Card;
 use Filament\Actions;
 use Filament\Actions\Action;
@@ -62,12 +63,13 @@ class EditCard extends EditRecord
             Action::make('Checkout')
                 ->visible(fn (Card $record) => is_null($record->departure_date)) // <--- only show if departure_date is null
                 ->requiresConfirmation()
-                ->action(fn (Card $record) => $record->update([
-                    'departure_date' => now(),
-                    'check_out_made_by' => auth()->id(),
-                ]))
+                // ->action(fn (Card $record) => $record->update([
+                //     'departure_date' => now(),
+                //     'check_out_made_by' => auth()->id(),
+                // ]))
                 ->action(function (Card $record) {
                     $now = now();
+                    dd((new DailyCollectionCalculator($record))->calculate());
                     // dd($this->record->cardRooms);
                     $this->record->cardRooms->each(function ($room) use ($now) {
                         // dd($room->check_out, $record->departure_date);

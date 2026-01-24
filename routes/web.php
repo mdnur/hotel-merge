@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\DownloadInvoiceController;
-use App\Livewire\RoomBookingChart;
+use App\Livewire\BookingTimeline;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
@@ -35,4 +35,5 @@ Route::get('/test', function () {
 
 });
 
-Route::get('/test2', [RoomBookingChart::class, 'render']);
+// Route::get('/test2', [BookingTimeline::class, 'render']);
+Route::get('/test2', BookingTimeline::class);

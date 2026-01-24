@@ -10,14 +10,14 @@ use Filament\Pages\Page;
 class DueList extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
     public $date;
+
     protected static string $view = 'filament.pages.due-list';
 
     // public $data;
 
-    public function mount()
-    {
-    }
+    public function mount() {}
 
     // public function dueList()
     // {
@@ -28,9 +28,10 @@ class DueList extends Page
     // }
     public function refreshData()
     {
-        $livewire = new LivewireDueList();
-    //    $livewire->refreshData($this->date);
-       return $this->mount();
+        $livewire = new LivewireDueList;
+
+        //    $livewire->refreshData($this->date);
+        return $this->mount();
         // dd('hello world');
 
         // Do something here

@@ -2,12 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Exports\DueListExport;
 use App\Http\Controllers\DailyCollectionCalculator;
 use App\Models\Card;
 use App\Models\Payment;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use Livewire\Component;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DueList extends Component
 {
@@ -36,18 +38,24 @@ class DueList extends Component
     public function savePayment()
     {
         $card = Card::where('card_no', $this->selectedCard)->first();
-        // dd($card->id);
-        $this->data = [
-            'card_id' => $card->id,
-            'user_id' => auth()->user()->id,
+        $card->payments()->create([
             'amount' => $this->amount,
-            'payment_type_id' => $this->payment_type_id ?? null,
+            'payment_type_id' => $this->payment_type_id,
             'tnx' => $this->tnx,
-        ];
+            'user_id' => auth()->user()->id,
+        ]);
+        // dd($card->id);
+        // $this->data = [
+        //     'card_id' => $card->id,
+        //     'user_id' => auth()->user()->id,
+        //     'amount' => $this->amount,
+        //     'payment_type_id' => $this->payment_type_id ?? null,
+        //     'tnx' => $this->tnx,
+        // ];
         // dd($this->payment_type_id);
         // dd($this->data);
         // dd($this->data);
-        Payment::create($this->data);
+        // Payment::create($this->data);
         // Optionally show notification
         Notification::make()
             ->title('Payment Successful')
@@ -104,7 +112,7 @@ class DueList extends Component
         // $this->items = $dailyRoomSheet->showDailyCollection($this->date);
         // dd($this->items);
         $this->render();
-        dd($this->items);
+        // dd($this->items);
         // $this->render();
     }
 
@@ -141,5 +149,46 @@ class DueList extends Component
         // dd($this->payments);
 
         $this->dispatch('open-modal', id: 'payment-history-modal');
+    }
+
+    public function exportToExcel()
+    {
+        // $this->loadDueList();
+
+        // if (! $this->data) {
+        //     Notification::make()
+        //         ->title('NO Data Found')
+        //         ->body('search with different date')
+        //         ->warning()
+        //         ->send();
+
+        //     return;
+        // }
+        // dd($this->data);
+        $format = Carbon::parse($this->date)->format('d-m-y');
+
+        return Excel::download(new DueListExport($this->items, $this->date), "due-list-sheet-{$format}.xlsx");
+    }
+
+    public function exportToExcel1()
+    {
+        $this->loadDueList();
+
+        if (! $this->items) {
+            Notification::make()
+                ->title('NO Data Found')
+                ->body('search with different date')
+                ->warning()
+                ->send();
+
+            return;
+        }
+        // dd($this->data);
+        $format = Carbon::parse($this->date)->format('d-m-y');
+
+        return Excel::download(
+            new DueListExport($this->items),
+            "due-list-{$format}.xlsx"
+        );
     }
 }

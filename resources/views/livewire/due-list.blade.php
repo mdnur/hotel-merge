@@ -26,6 +26,10 @@
                 Refresh
             </x-filament::button>
 
+            <x-filament::button wire:click="exportToExcel1" class="w-full sm:w-auto">
+                Download
+            </x-filament::button>
+
         </div>
     </div>
 
@@ -68,7 +72,9 @@
                         @forelse ($this->items->where('total_due', '>', 0) as $item)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-200">
-                                {{ $item['card_no'] }}
+                                <a href="{{ \App\Filament\Resources\CardResource::getUrl('edit', ['record' => \App\Models\Card::where('card_no', $item['card_no'])->first()?->id]) }}">
+                                    {{ $item['card_no'] }}
+                                </a>
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                                 <div class="flex flex-wrap gap-1">

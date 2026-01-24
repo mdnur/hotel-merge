@@ -27,7 +27,8 @@
 
 
         {{-- </x-filament::section>  --}}
-        <livewire:due-list /> {{-- <livewire:room-booking-chart /> --}}
+        <livewire:due-list />
+        {{-- <livewire:booking-timeline /> --}}
 
 
         {{-- <livewire:room-booking-chart /> --}}

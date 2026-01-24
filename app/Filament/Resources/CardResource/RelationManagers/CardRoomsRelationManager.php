@@ -28,7 +28,7 @@ class CardRoomsRelationManager extends RelationManager
                 ->searchable()
                 ->required(),
             Forms\Components\TextInput::make('rent')->required()->numeric(),
-            Forms\Components\DateTimePicker::make('check_in')->native(false)->default(now())->required()->maxDate(now()),
+            Forms\Components\DateTimePicker::make('check_in')->native(false)->default(now())->required(), // ->maxDate(now())
             Forms\Components\DateTimePicker::make('check_out')
                 ->label('Check Out Time')
                 ->native(false)
