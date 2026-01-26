@@ -40,21 +40,61 @@ class CardRoom extends Model
 
     public function scopeCheckoutToday(Builder $query)
     {
-        // return $query->whereBetween('check_out', [
-        //     Carbon::today()->addHours(5),                     // Today 5:00 AM
-        //     Carbon::tomorrow()->addHours(4)->addMinutes(49), // Tomorrow 4:49 AM
-        // ]);
+        $now = Carbon::now();
+        Carbon::setTestNowAndTimezone($now->copy());
+        // Determine hotel business date
+        $businessDate = $now->between(
+            Carbon::today()->startOfDay(),
+            Carbon::today()->setHour(11)->setMinute(15)
+        )
+            ? Carbon::yesterday()
+            : Carbon::today();
+
+        // Hotel checkout window (11:30 AM → next day 11:29 AM)
+        $start = $businessDate->copy()->setHour(11)->setMinute(30);
+        $end = $businessDate->copy()->addDay()->setHour(11)->setMinute(29);
 
         return $query
-            ->whereBetween('check_out', [
-                Carbon::today()->addHours(11)->minute(30),                     // Today 5:00 AM
-                Carbon::tomorrow()->addHours(4)->addMinutes(49), // Tomorrow 4:49 AM
-            ])
-            ->whereHas('card', function (Builder $q) {
-                $q->whereBetween('departure_date', [
-                    Carbon::today()->addHours(11)->minute(30),                     // Today 5:00 AM
-                    Carbon::tomorrow()->addHours(4)->addMinutes(49), // Tomorrow 4:49 AM
-                ]);
+            ->whereBetween('check_out', [$start, $end])
+            ->whereHas('card', function (Builder $q) use ($start, $end) {
+                $q->whereBetween('departure_date', [$start, $end]);
             });
     }
+
+    public function scopeTodaysTotalRoom(Builder $query)
+    {
+        $now = Carbon::now();
+
+        $businessDate = $now->between(
+            Carbon::today()->startOfDay(),
+            Carbon::today()->setHour(11)->setMinute(15)
+        )
+            ? Carbon::yesterday()
+            : Carbon::today();
+
+        $start = $businessDate->copy()->setHour(11)->setMinute(30);
+        $end = $businessDate->copy()->addDay()->setHour(11)->setMinute(29);
+
+        return $query->where(function (Builder $q) use ($start, $end) {
+
+            // 1️⃣ Currently Occupied
+            $q->where(function (Builder $occupied) {
+                $occupied
+                    ->where('check_out', '>', now())
+                    ->whereHas('card', fn ($c) => $c->whereNull('departure_date'));
+            })
+
+            // OR
+
+            // 2️⃣ Checkout Today
+                ->orWhere(function (Builder $checkout) use ($start, $end) {
+                    $checkout
+                        ->whereBetween('check_out', [$start, $end])
+                        ->whereHas('card', fn ($c) => $c->whereBetween('departure_date', [$start, $end])
+                        );
+                });
+        });
+    }
+
+    public function checkOut($query) {}
 }

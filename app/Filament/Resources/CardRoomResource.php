@@ -63,6 +63,7 @@ class CardRoomResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('room.room_no')
+                    ->searchable()
                     ->label('Room No')
                     ->numeric()
                     ->sortable(),
