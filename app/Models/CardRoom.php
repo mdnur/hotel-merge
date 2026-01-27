@@ -33,6 +33,7 @@ class CardRoom extends Model
     {
         return $query
             ->where('check_out', '>', now())
+            ->where('check_in', '<', now())
             ->whereHas('card', function (Builder $q) {
                 $q->whereNull('departure_date');
             });
@@ -81,6 +82,7 @@ class CardRoom extends Model
             $q->where(function (Builder $occupied) {
                 $occupied
                     ->where('check_out', '>', now())
+                    ->where('check_in', '<', now())
                     ->whereHas('card', fn ($c) => $c->whereNull('departure_date'));
             })
 
