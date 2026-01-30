@@ -32,6 +32,7 @@ class ExpenseResource extends Resource
                     ->required()
                     ->numeric(),
                 Forms\Components\DatePicker::make('expense_date')
+                    ->native(false)
                     ->required(),
                 Forms\Components\TextInput::make('description')
                     ->maxLength(255),

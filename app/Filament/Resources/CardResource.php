@@ -31,7 +31,9 @@ class CardResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\TextInput::make('card_no')->label('Card No')->unique(ignoreRecord: true)->required()->maxLength(255),
+            Forms\Components\TextInput::make('card_no')->label('Card No')->unique(ignoreRecord: true)->required()->maxLength(255)->default(
+                optional(Card::latest('created_at')->first())->card_no
+                    ? Card::latest('created_at')->first()->card_no + 1 : null),
             Forms\Components\TextInput::make('reservation_id')->maxLength(255)->unique(ignoreRecord: true),
             Forms\Components\TextInput::make('total_rent')
                 ->label('Total Rent')
@@ -73,7 +75,7 @@ class CardResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('card_no')->searchable(),
+                Tables\Columns\TextColumn::make('card_no')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('reservation_id')->searchable()->toggleable(),
                 Tables\Columns\TextColumn::make('arrival_date')->dateTime()->sortable(),
                 Tables\Columns\TextColumn::make('departure_date')->dateTime()->sortable(),

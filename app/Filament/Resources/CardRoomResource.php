@@ -91,7 +91,21 @@ class CardRoomResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\Filter::make('business_date')
+                    ->label('Business Date')
+                    ->form([
+                        Forms\Components\DatePicker::make('date')
+                            ->label('Select Date')
+                            ->native(false)
+                            ->default(now()->toDateString()),
+                    ])
+                    ->query(function ($query, array $data) {
+                        if (! $data['date']) {
+                            return $query;
+                        }
+
+                        return $query->customDateTotalRoom($data['date']);
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

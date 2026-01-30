@@ -98,5 +98,42 @@ class CardRoom extends Model
         });
     }
 
-    public function checkOut($query) {}
+    public function scopeCustomDateTotalRoom(Builder $query, Carbon|string $date)
+    {
+        $date = Carbon::parse($date);
+
+        /*
+         |---------------------------------------------------------
+         | Business day logic
+         | Business day = 11:30 AM to next day 11:29 AM
+         |---------------------------------------------------------
+         */
+
+        $start = $date->copy()->setHour(11)->setMinute(30)->startOfMinute();
+        $end = $date->copy()->addDay()->setHour(11)->setMinute(29)->endOfMinute();
+
+        return $query->where(function (Builder $q) use ($start, $end) {
+
+            // 1️⃣ Occupied during business time
+            $q->where(function (Builder $occupied) use ($start, $end) {
+                $occupied
+                    ->where('check_in', '<', $end)
+                    ->where('check_out', '>', $start)
+                    ->whereHas('card', function ($c) {
+                        $c->whereNull('departure_date');
+                    });
+            })
+
+            // OR
+
+            // 2️⃣ Checkout within business window
+                ->orWhere(function (Builder $checkout) use ($start, $end) {
+                    $checkout
+                        ->whereBetween('check_out', [$start, $end])
+                        ->whereHas('card', function ($c) use ($start, $end) {
+                            $c->whereBetween('departure_date', [$start, $end]);
+                        });
+                });
+        });
+    }
 }

@@ -20,6 +20,10 @@
         "vite": "^6.1.1"
     },
     "dependencies": {
+        "@fullcalendar/core": "^6.1.20",
+        "@fullcalendar/daygrid": "^6.1.20",
+        "@fullcalendar/interaction": "^6.1.20",
+        "@fullcalendar/resource-timeline": "^6.1.20",
         "latest-version": "^9.0.0",
         "puppeteer": "^24.3.0"
     }

@@ -10,6 +10,7 @@ class Room extends Model
     use HasFactory;
 
     protected $guarded = [];
+
     protected $casts = [
         'check_in' => 'date:Y-m-d',
         'check_out' => 'date:Y-m-d',
@@ -18,5 +19,10 @@ class Room extends Model
     public function roomType()
     {
         return $this->belongsTo(RoomType::class, 'room_type_id', 'id');
+    }
+
+    public function cardRooms()
+    {
+        return $this->hasMany(CardRoom::class);
     }
 }
