@@ -7,16 +7,40 @@ use Filament\Pages\Page;
 
 class RoomCalendar extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-calendar';
-
-    protected static ?string $navigationLabel = 'Room Calendar';
-
-    protected static ?string $title = 'Room Availability';
-
     protected static string $view = 'filament.pages.room-calendar';
 
-    public function getRooms()
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
+    public array $resources = [];
+
+    public array $events = [];
+
+    public function mount(): void
     {
-        return Room::with('cardRooms')->orderBy('room_no', 'desc')->get();
+        $rooms = Room::with('cardRooms')->get();
+
+        // Rooms → calendar rows
+        $this->resources = $rooms->map(function ($room) {
+            return [
+                'id' => (string) $room->id,
+                'title' => 'Room '.$room->room_no,
+            ];
+        })->values()->toArray();
+
+        // Card rooms → calendar events
+        $this->events = $rooms->flatMap(function ($room) {
+            return $room->cardRooms->map(function ($cr) use ($room) {
+                return [
+                    'resourceId' => (string) $room->id,
+                    'title' => 'C'.$cr->card->card_no,
+                    'start' => $cr->check_in->toDateString(),
+                    'end' => $cr->check_out->toDateString(),
+                    'backgroundColor' => $cr->check_out > now() ? 'red' : 'yellow',
+                    'textColor' => $cr->check_out > now() ? 'black' : 'black',
+                ];
+            });
+        })->values()->toArray();
+
+        // dd($this->resources, $this->events);
     }
 }

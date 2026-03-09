@@ -83,11 +83,12 @@ class DueList extends Component
         $this->loadDueList();
     }
 
-    public function openPaymentModal($cardNo)
+    public function openPaymentModal($cardNo, $totalDue)
     {
 
         $this->dispatch('open-modal', id: 'receive-payment-modal');
-        // dd($cardNo);
+        $this->amount = $totalDue;
+        // dd($totalDue);
         $this->selectedCard = $cardNo;
 
         // $this->selectedCard = $cardNo;

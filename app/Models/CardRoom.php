@@ -11,6 +11,11 @@ class CardRoom extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'check_in' => 'datetime',
+        'check_out' => 'datetime',
+    ];
+
     protected $guarded = [];
 
     public function card()

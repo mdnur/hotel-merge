@@ -97,7 +97,7 @@
                                     <x-filament::button size="xs" color="info" icon="heroicon-o-eye" wire:click="openViewModal('{{ $item['card_no'] }}')">
                                         View
                                     </x-filament::button>
-                                    <x-filament::button size="xs" color="success" icon="heroicon-o-currency-dollar" wire:click="openPaymentModal('{{ $item['card_no'] }}')">
+                                    <x-filament::button size="xs" color="success" icon="heroicon-o-currency-dollar" wire:click="openPaymentModal('{{ $item['card_no'] }}','{{ $item['total_due'] }}')">
                                         Pay
                                     </x-filament::button>
                                     <x-filament::button color="info" size="xs" wire:click="openPaymentHistoryModal('{{ $item['card_no'] }}')">
@@ -403,6 +403,8 @@
                     <div class="flex justify-between">
                         <span>{{ $payment->created_at->format('d M Y h:i:s') }}</span>
                         <span>৳ {{ number_format($payment->amount, 2) }}</span>
+                        <span>{{ $payment->paymentType->name }}</span>
+                        <span>{{ $payment->tnx }}</span>
                     </div>
                 </li>
                 @endforeach

@@ -49,16 +49,97 @@ class CardRoomsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('card_id')
             // ->livewire() // 👈 important
-            ->columns([Tables\Columns\TextColumn::make('card.card_no')->numeric()->sortable(), Tables\Columns\TextColumn::make('room.room_no')->numeric()->sortable(), Tables\Columns\TextColumn::make('check_in')->date()->sortable(), Tables\Columns\TextColumn::make('check_out')->date()->sortable(), Tables\Columns\TextColumn::make('rent')->numeric()->sortable(), Tables\Columns\TextColumn::make('user.name')->label('Room allocate by')->numeric()->sortable()])
+            ->columns([
+                Tables\Columns\TextColumn::make('card.card_no')->numeric()->sortable(),
+                Tables\Columns\TextColumn::make('room.room_no')->numeric()->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('check_in')->date()->sortable(),
+                Tables\Columns\TextColumn::make('check_out')->date()->sortable(),
+                Tables\Columns\TextColumn::make('rent')->numeric()->sortable(),
+                Tables\Columns\TextColumn::make('user.name')->label('Room allocate by')->numeric()->sortable(),
+            ])->searchable()
             ->filters([
                 //
             ])
             ->headerActions([Tables\Actions\CreateAction::make()->createAnother(false)->after(function () {
                 $this->dispatch('refreshParent');
-            })])
+            }),
+                Tables\Actions\Action::make('addMultipleRooms')
+                    ->label('Add Multiple Rooms')
+                    ->icon('heroicon-o-plus-circle')
+                    ->color('primary')
+                    ->form([
+                        Forms\Components\Select::make('room_ids')
+                            ->label('Select Rooms')
+                            ->multiple()
+                            ->searchable()
+                            ->options(
+                                Room::query()->pluck('room_no', 'id')
+                            )
+                            ->required(),
+
+                        Forms\Components\TextInput::make('rent')
+                            ->label('Room Rent (Same for all)')
+                            ->numeric()
+                            ->required(),
+
+                        Forms\Components\DateTimePicker::make('check_in')
+                            ->native(false)
+                            ->default(now())
+                            ->required(),
+
+                        Forms\Components\DateTimePicker::make('check_out')
+                            ->native(false)
+                            ->default(
+                                Carbon::today()->addDay()->setTime(10, 59)
+                            )
+                            ->required(),
+
+                        Forms\Components\Textarea::make('note')
+                            ->maxLength(255),
+                    ])
+                    ->action(function (array $data) {
+                        foreach ($data['room_ids'] as $roomId) {
+                            $this->ownerRecord->cardRooms()->create([
+                                'room_id' => $roomId,
+                                'rent' => $data['rent'],
+                                'check_in' => $data['check_in'],
+                                'check_out' => $data['check_out'],
+                                'note' => $data['note'] ?? null,
+                                'user_id' => auth()->id(),
+                            ]);
+                        }
+
+                        // Reset parent card checkout info
+                        $this->ownerRecord->update([
+                            'departure_date' => null,
+                            'check_out_made_by' => null,
+                        ]);
+
+                        $this->dispatch('refreshParent');
+                        $this->dispatch('refreshCardRoomsTable');
+
+                        Notification::make()
+                            ->title('Multiple rooms added successfully')
+                            ->success()
+                            ->send();
+                    }),
+            ]
+            )
             ->actions([
 
                 Tables\Actions\EditAction::make()
+                    ->after(function () {
+                        $this->dispatch('refreshParent');
+
+                        // Update parent record (Card)
+                        $this->ownerRecord->update([
+                            'departure_date' => null, // Example: update timestamp or any field
+                            'check_out_made_by' => null,
+                        ]);
+                        // $this->dispatch('refreshParent');
+                    }),
+
+                Tables\Actions\DeleteAction::make()
                     ->after(function () {
                         $this->dispatch('refreshParent');
 

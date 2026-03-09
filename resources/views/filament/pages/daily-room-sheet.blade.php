@@ -35,60 +35,58 @@
                     <tbody>
 
                         @php
-                            $sl = 1;
-                            $totalDailyRent = 0;
-                            $totalCashCollected = 0;
-                            $totalAdvAdjust = 0;
-                            $totalDueCollection = 0;
-                            $totalDue = 0;
-                            $totalAdvance = 0;
-                            $totalTotalDue = 0;
-                            $totalRoom = 0;
+                        $sl = 1;
+                        $totalDailyRent = 0;
+                        $totalCashCollected = 0;
+                        $totalAdvAdjust = 0;
+                        $totalDueCollection = 0;
+                        $totalDue = 0;
+                        $totalAdvance = 0;
+                        $totalTotalDue = 0;
+                        $totalRoom = 0;
                         @endphp
 
                         @forelse ($this->data as $item)
-                            @php
-                                $totalDailyRent += $item['daily_rent'];
-                                $totalCashCollected += $item['cash_collected'];
-                                $totalAdvAdjust += $item['adv_adjust'];
-                                $totalDueCollection += $item['due_collection'];
-                                $totalDue += $item['due'];
-                                $totalAdvance += $item['advance'];
-                                $totalTotalDue += $item['total_due'];
-                                $totalRoom += count(explode(',', $item['room_no']));
-                            @endphp
+                        @php
+                        $totalDailyRent += $item['daily_rent'];
+                        $totalCashCollected += $item['cash_collected'];
+                        $totalAdvAdjust += $item['adv_adjust'];
+                        $totalDueCollection += $item['due_collection'];
+                        $totalDue += $item['due'];
+                        $totalAdvance += $item['advance'];
+                        $totalTotalDue += $item['total_due'];
+                        $totalRoom += count(explode(',', $item['room_no']));
+                        @endphp
 
-                            <tr class="border-b ">
-                                <td class="px-4 py-2 text-center border border-gray-300"> {{ $sl++ }}</td>
-                                <td class="px-4 py-2 text-center border border-gray-300">
-                                    <x-filament::button size="xs" color="info" icon="heroicon-o-eye" outlined
-                                        wire:click="openViewModal('{{ $item['card_no'] }}')">
-                                        {{ $item['card_no'] }}
-                                    </x-filament::button>
-                                </td>
-                                <td
-                                    style="width: 12rem; padding: 0.5rem 1rem; line-height: 1.625; text-align: center; word-break: break-all; white-space: normal;">
-                                    {{ $item['room_no'] }}
-                                </td>
+                        <tr class="border-b ">
+                            <td class="px-4 py-2 text-center border border-gray-300"> {{ $sl++ }}</td>
+                            <td class="px-4 py-2 text-center border border-gray-300">
+                                <x-filament::button size="xs" color="info" icon="heroicon-o-eye" outlined wire:click="openViewModal('{{ $item['card_no'] }}')">
+                                    {{ $item['card_no'] }}
+                                </x-filament::button>
+                            </td>
+                            <td style="width: 12rem; padding: 0.5rem 1rem; line-height: 1.625; text-align: center; word-break: break-all; white-space: normal;">
+                                {{ $item['room_no'] }}
+                            </td>
 
-                                <td class="px-4 py-2 text-center border border-gray-300"> {{ $item['daily_rent'] }}
-                                </td>
-                                <td class="px-4 py-2 text-center border border-gray-300">
-                                    {{ $item['cash_collected'] }}
-                                </td>
-                                <td class="px-4 py-2 text-center border border-gray-300"> {{ $item['adv_adjust'] }}
-                                </td>
-                                <td class="px-4 py-2 text-center border border-gray-300">
-                                    {{ $item['due_collection'] }}
-                                </td>
-                                <td class="px-4 py-2 text-center border border-gray-300"> {{ $item['due'] }}</td>
-                                <td class="px-4 py-2 text-center border border-gray-300"> {{ $item['advance'] }}</td>
-                            </tr>
+                            <td class="px-4 py-2 text-center border border-gray-300"> {{ $item['daily_rent'] }}
+                            </td>
+                            <td class="px-4 py-2 text-center border border-gray-300">
+                                {{ $item['cash_collected'] }}
+                            </td>
+                            <td class="px-4 py-2 text-center border border-gray-300"> {{ $item['adv_adjust'] }}
+                            </td>
+                            <td class="px-4 py-2 text-center border border-gray-300">
+                                {{ $item['due_collection'] }}
+                            </td>
+                            <td class="px-4 py-2 text-center border border-gray-300"> {{ $item['due'] }}</td>
+                            <td class="px-4 py-2 text-center border border-gray-300"> {{ $item['advance'] }}</td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="9" class="px-4 py-2 text-center border border-gray-300">No data
-                                    available</td>
-                            </tr>
+                        <tr>
+                            <td colspan="9" class="px-4 py-2 text-center border border-gray-300">No data
+                                available</td>
+                        </tr>
                         @endforelse
                     </tbody>
                     <tfoot class="font-bold ">
@@ -238,15 +236,15 @@
                     </thead>
                     <tbody>
                         @forelse ($expenditures as $expenditure)
-                            <tr>
-                                <td class="px-4 py-2">{{ $loop->iteration }}</td>
-                                <td class="px-4 py-2">{{ $expenditure['expense_type_name'] }}</td>
-                                <td class="px-4 py-2 text-right">৳{{ $expenditure['total_amount'] }}</td>
-                            </tr>
+                        <tr>
+                            <td class="px-4 py-2">{{ $loop->iteration }}</td>
+                            <td class="px-4 py-2">{{ $expenditure['expense_type_name'] }}</td>
+                            <td class="px-4 py-2 text-right">৳{{ $expenditure['total_amount'] }}</td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td class="px-4 py-2" colspan="3">No data available</td>
-                            </tr>
+                        <tr>
+                            <td class="px-4 py-2" colspan="3">No data available</td>
+                        </tr>
                         @endforelse
                     </tbody>
                     <tfoot class="">
@@ -269,96 +267,77 @@
             </x-slot>
 
             @if ($this->card)
-                <div
-                    class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead class="bg-gray-50 dark:bg-gray-700">
-                                <tr>
-                                    <th
-                                        class="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
-                                        Date</th>
-                                    <th
-                                        class="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
-                                        Card No.</th>
-                                    <th
-                                        class="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
-                                        Room No.</th>
-                                    <th
-                                        class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
-                                        Room Rent</th>
-                                    <th
-                                        class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
-                                        Cash</th>
-                                    <th
-                                        class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
-                                        Advance Adjust</th>
-                                    <th
-                                        class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
-                                        Due Collection</th>
-                                    <th
-                                        class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
-                                        Due</th>
-                                    <th
-                                        class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
-                                        Advance</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                                @foreach ($this->card as $item)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                        <td
-                                            class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap dark:text-gray-200">
-                                            {{ $item['specific_date']->format('d/m/Y') }}
-                                        </td>
-                                        <td
-                                            class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap dark:text-gray-200">
-                                            {{ $item['card_no'] }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                                            <div class="flex flex-wrap gap-1">
-                                                @foreach (explode(',', $item['room_no']) as $room)
-                                                    <span
-                                                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                                        {{ trim($room) }}
-                                                    </span>
-                                                @endforeach
-                                            </div>
-                                        </td>
-                                        <td
-                                            class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
-                                            ৳{{ number_format($item['daily_rent'], 2) }}
-                                        </td>
-                                        <td
-                                            class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
-                                            ৳{{ number_format($item['cash_collected'], 2) }}
-                                        </td>
-                                        <td
-                                            class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
-                                            ৳{{ number_format($item['adv_adjust'], 2) }}
-                                        </td>
-                                        <td
-                                            class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
-                                            ৳{{ number_format($item['due_collection'], 2) }}
-                                        </td>
-                                        <td
-                                            class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
-                                            ৳{{ number_format($item['due'], 2) }}
-                                        </td>
-                                        <td
-                                            class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
-                                            ৳{{ number_format($item['advance'], 2) }}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                                    Date</th>
+                                <th class="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                                    Card No.</th>
+                                <th class="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
+                                    Room No.</th>
+                                <th class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
+                                    Room Rent</th>
+                                <th class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
+                                    Cash</th>
+                                <th class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
+                                    Advance Adjust</th>
+                                <th class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
+                                    Due Collection</th>
+                                <th class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
+                                    Due</th>
+                                <th class="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-400">
+                                    Advance</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                            @foreach ($this->card as $item)
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap dark:text-gray-200">
+                                    {{ $item['specific_date']->format('d/m/Y') }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap dark:text-gray-200">
+                                    {{ $item['card_no'] }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach (explode(',', $item['room_no']) as $room)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                            {{ trim($room) }}
+                                        </span>
+                                        @endforeach
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
+                                    ৳{{ number_format($item['daily_rent'], 2) }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
+                                    ৳{{ number_format($item['cash_collected'], 2) }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
+                                    ৳{{ number_format($item['adv_adjust'], 2) }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
+                                    ৳{{ number_format($item['due_collection'], 2) }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
+                                    ৳{{ number_format($item['due'], 2) }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-right text-gray-900 whitespace-nowrap dark:text-gray-200">
+                                    ৳{{ number_format($item['advance'], 2) }}
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
+            </div>
             @else
-                <div class="p-4 text-center text-gray-500 dark:text-gray-400">
-                    No transaction details found
-                </div>
+            <div class="p-4 text-center text-gray-500 dark:text-gray-400">
+                No transaction details found
+            </div>
             @endif
 
             <x-slot name="footer">

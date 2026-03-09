@@ -64,10 +64,10 @@ class PaymentResource extends Resource
                 Tables\Columns\TextColumn::make('paymentType.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('advance')
+                Tables\Columns\TextColumn::make('amount')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('Last3Digit')
+                Tables\Columns\TextColumn::make('tnx')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
