@@ -1,13 +1,23 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Payments;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\Payments\Pages\ListPayments;
+use App\Filament\Resources\Payments\Pages\CreatePayment;
+use App\Filament\Resources\Payments\Pages\EditPayment;
 use App\Filament\Resources\PaymentResource\Pages;
 use App\Models\Card;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -16,37 +26,37 @@ class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Payment Management';
+    protected static string | \UnitEnum | null $navigationGroup = 'Payment Management';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('amount')
+        return $schema
+            ->components([
+                TextInput::make('amount')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('tnx')
+                TextInput::make('tnx')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('description')
+                TextInput::make('description')
                     ->maxLength(255),
 
-                Forms\Components\Select::make('payment_type_id')
+                Select::make('payment_type_id')
                     ->label('Payment Method')
                     ->options(PaymentType::all()->pluck('name', 'id'))
                     ->searchable()
                     ->required(),
-                Forms\Components\TextInput::make('user_id')
+                TextInput::make('user_id')
                     ->required()
                     ->numeric(),
 
-                Forms\Components\Select::make('card_id')
+                Select::make('card_id')
                     ->label('Card No')
                     ->options(Card::all()->pluck('card_no', 'id'))
                     ->searchable()
                     ->required(),
-                Forms\Components\DateTimePicker::make('created_at')
+                DateTimePicker::make('created_at')
                     ->readonly(),
             ]);
     }
@@ -55,26 +65,26 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('amount')
+                TextColumn::make('amount')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('tnx')
+                TextColumn::make('tnx')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('paymentType.name')
+                TextColumn::make('paymentType.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('user.name')
+                TextColumn::make('user.name')
                     ->label('Received By')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('card_id')
+                TextColumn::make('card_id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -82,12 +92,12 @@ class PaymentResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -102,9 +112,9 @@ class PaymentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPayments::route('/'),
-            'create' => Pages\CreatePayment::route('/create'),
-            'edit' => Pages\EditPayment::route('/{record}/edit'),
+            'index' => ListPayments::route('/'),
+            'create' => CreatePayment::route('/create'),
+            'edit' => EditPayment::route('/{record}/edit'),
         ];
     }
 }

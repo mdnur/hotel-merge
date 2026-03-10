@@ -112,7 +112,7 @@
 
         <div class="grid grid-cols-1 gap-4 mt-5 md:grid-cols-2">
             <!-- Debit/Credit Section -->
-            <x-filament::card>
+            <x-filament::section>
                 <h2 class="text-lg font-semibold">Debit/Credit</h2>
                 <table class="w-full">
                     <thead>
@@ -221,10 +221,10 @@
                 </div>
 
 
-            </x-filament::card>
+            </x-filament::section>
 
             <!-- Expenditures Section -->
-            <x-filament::card>
+            <x-filament::section>
                 <h2 class="text-lg font-semibold">Expenditures</h2>
                 <table class="w-full mt-4">
                     <thead>
@@ -255,7 +255,7 @@
                         </tr>
                     </tfoot>
                 </table>
-            </x-filament::card>
+            </x-filament::section>
         </div>
         <!-- View Modal -->
         <x-filament::modal id="view-modal" width="5xl">

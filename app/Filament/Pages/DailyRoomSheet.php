@@ -6,21 +6,28 @@ use App\Exports\DailyRoomSheetExport;
 use App\Http\Controllers\DailyCollectionCalculator;
 use App\Models\Card;
 use App\Models\Expense;
+use App\Models\Setting;
+use BackedEnum;
 use Carbon\Carbon;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Section;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Illuminate\Support\Facades\Storage;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\LaravelPdf\Facades\Pdf;
 
-class DailyRoomSheet extends Page
+class DailyRoomSheet extends Page implements HasForms
 {
-    protected static string $view = 'filament.pages.daily-room-sheet';
+    use InteractsWithForms;
 
-    protected static ?string $navigationIcon = 'heroicon-o-calendar';
+    protected string $view = 'filament.pages.daily-room-sheet';
+
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::Calendar;
 
     public $date;
 
@@ -36,23 +43,16 @@ class DailyRoomSheet extends Page
 
     public $card;
 
-    // public static function canViewAny(): bool
-    // {
-    //     return false;
-
-    //     return auth()->user()->can('');
-    // }
+    public $selectedCardNo;
 
     public static function canAccess(): bool
     {
-        return auth()->user()->isSuperAdmin() or auth()->user()->can('view DailyRoomSheet');
-        // return auth()->user()?->can('view daily room sheet') ?? false;
+        return auth()->user()->isSuperAdmin() || auth()->user()->can('view DailyRoomSheet');
     }
 
-    protected function getFormSchema(): array
+    public function form(Schema $form): Schema
     {
-        return [
-
+        return $form->schema([
             Section::make('Select Date')
                 ->description('Select a date to generate the report')
                 ->columns(2)
@@ -61,228 +61,187 @@ class DailyRoomSheet extends Page
                         ->default(now()->format('Y-m-d'))
                         ->maxDate(now())
                         ->native(false)
-                        ->reactive(),
-                ])->columns(2)
-                ->headerActions([])
-
+                        ->live(),
+                ])
                 ->footerActions([
                     Action::make('Generate Report')
                         ->color('success')
-                        ->action(function () {
-                            $this->loadData();
-                        })->disabled(fn () => blank($this->date)),
+                        ->action(fn () => $this->loadData())
+                        ->disabled(fn () => blank($this->date)),
 
-                    Action::make('Download')
-                        ->url(fn () => $this->date ? route('download.invoice', ['date' => Carbon::parse($this->date)->format('d-m-Y')]) : null)
+                    Action::make('Download PDF')
+                        ->url(fn () => $this->date
+                            ? route('download.invoice', ['date' => Carbon::parse($this->date)->format('d-m-Y')])
+                            : null)
                         ->openUrlInNewTab()
-                        ->disabled(fn () => blank($this->date)), // disables button if no date
-
-                    // Action::make('save')
-                    //     ->action(function () {
-                    //         $this->savePDF();
-                    //     })->disabled(fn () => blank($this->date))
-                    //     ->disabled(fn () => blank($this->date)), // disables button if no date
+                        ->disabled(fn () => blank($this->date)),
                 ]),
-        ];
+        ]);
     }
 
-    public function loadData()
-    {
-        if ($this->date == null) {
-            Notification::make()
-                ->title('NO Date Selected')
-                ->body('First Select a date')
-                ->warning()
-                ->send();
+    // ─── DAILY COLLECTION LOGIC (previously in Livewire\DailyRoomSheet) ───
 
-            return;
-        }
-        // dd($this->setData()->first());
-        // Check if data exists for the selected date
-        if ($this->setData()->first() == null and $this->expenditure()->first() == null) {
-            Notification::make()
-                ->title('No Data Exists')
-                ->body("No data exists for the {$this->date}")
-                ->warning()
-                ->send();
-
-            return;
-        }
-        $this->setData();
-    }
-
-    public function balanceBeforeOFThisMonth()
-    {
-
-        $daily = new \App\Livewire\DailyRoomSheet;
-        // dd($daily->expenditure($this->date));
-
-        $startDate = Carbon::parse($this->date)->startOfMonth();
-        $endDate = Carbon::parse($this->date);
-
-        // Initialize monthly totals
-        $monthlyTotals = [
-            'total_room_rent' => 0,
-            'total_cash_collected' => 0,
-            'total_adv_adjust' => 0,
-            'total_due_collection' => 0,
-            'total_due' => 0,
-            'total_advance' => 0,
-            'total_rooms' => 0,
-        ];
-
-        // Loop through each day of the month up to selected date
-        $currentDate = $startDate->copy();
-        $total_expenditure_by_month = 0;
-        while ($currentDate < $endDate) {
-            $dailyTotals = $daily->showDailyCollection($currentDate->format('Y-m-d'));
-            $dailyTotals->each(function ($item, $key) use (&$monthlyTotals) {
-                $monthlyTotals['total_room_rent'] += ($item['cash_collected'] ?? 0) + ($item['adv_adjust'] ?? 0) + ($item['due_collection'] ?? 0);
-            });
-
-            $total_expenditure_by_month += $this->sumOfExpenditure($currentDate->format('Y-m-d'));
-
-            // Accumulate totals
-            // if ($dailyTotals) {
-            //     $monthlyTotals['total_room_rent'] += $dailyTotals['daily_rent'] ?? 0;
-            //     $monthlyTotals['total_cash_collected'] += $dailyTotals['cash_collected'] ?? 0;
-            //     $monthlyTotals['total_adv_adjust'] += $dailyTotals['adv_adjust'] ?? 0;
-            //     $monthlyTotals['total_due_collection'] += $dailyTotals['due_collection'] ?? 0;
-            //     $monthlyTotals['total_due'] += $dailyTotals['due'] ?? 0;
-            //     $monthlyTotals['total_advance'] += $dailyTotals['advance'] ?? 0;
-            //     $monthlyTotals['total_rooms'] += $dailyTotals['room_count'] ?? 0;
-            // }
-
-            $currentDate->addDay();
-        }
-
-        return $monthlyTotals['total_room_rent'] - $total_expenditure_by_month;
-        // $this->totals = $monthlyTotals;
-        // return $this->totals;
-    }
-
-    public function sumOfExpenditure($date)
-    {
-        $daily = new \App\Livewire\DailyRoomSheet;
-        $expenditure = $daily->expenditure($date);
-
-        $sum = 0;
-        foreach ($expenditure as $item) {
-            $sum += $item['amount'];
-        }
-
-        return $sum;
-    }
-
-    public function expenditure()
-    {
-        $daily = new \App\Livewire\DailyRoomSheet;
-        $results = $daily->expenditure($this->date);
-
-        // return $results;
-        return $results->groupBy('expense_type_id')->map(function ($item, $key) {
-
-            return $item->sum('amount');
-        });
-    }
-
-    public function getExpensesGroupedByType($dateIn)
+    public function showDailyCollection(string $dateIn)
     {
         $date = Carbon::parse($dateIn);
+        $cards = $this->getCardsForDailySlices($dateIn);
 
-        $expenses = Expense::where('expense_date', $date)->get()
-            ->groupBy('expense_type_id')
-            ->map(function ($group) {
-                return [
-                    'expense_type_name' => $group->first()->expenseType->name, // Assuming a relationship
-                    'total_amount' => $group->sum('amount'),
-                ];
-            });
+        $filteredItems = collect();
 
-        return $expenses;
+        foreach ($cards as $card) {
+            $calculator = new DailyCollectionCalculator($card);
+            $dailyCollection = $calculator->calculate();
+
+            $filteredItem = $dailyCollection->first(
+                fn ($item) => Carbon::parse($item['specific_date'])->isSameDay($date)
+            );
+
+            if ($filteredItem) {
+                $filteredItems->push($filteredItem);
+            }
+        }
+
+        return $filteredItems;
     }
 
-    public function DueBeforeOFThisMonth()
+    protected function getCardsForDailySlices(string $dateIn)
     {
-        $daily = new \App\Livewire\DailyRoomSheet;
+        $ciStart = Setting::where('key', 'check_in_start_time')->value('value');
+        $ciEnd = Setting::where('key', 'check_in_end_time')->value('value');
+        $coTime = Setting::where('key', 'check_out_time')->value('value');
 
-        $startDate = Carbon::parse($this->date)->startOfMonth();
-        $endDate = Carbon::parse($this->date);
+        [$ciSH, $ciSM] = explode(':', $ciStart);
+        [$ciEH, $ciEM] = explode(':', $ciEnd);
+        [$coH,  $coM] = explode(':', $coTime);
 
-        // Initialize monthly totals
-        $monthlyTotals = [
-            'total_room_rent' => 0,
-            'total_cash_collected' => 0,
-            'total_adv_adjust' => 0,
-            'total_due_collection' => 0,
-            'total_due' => 0,
-            'total_advance' => 0,
-            'total_rooms' => 0,
-        ];
+        $checkInStart = Carbon::parse($dateIn)->addHours((int) $ciSH)->addMinutes((int) $ciSM);
+        $checkInEnd = Carbon::parse($dateIn)->addDay()->addHours((int) $ciEH)->addMinutes((int) $ciEM)->addSecond(59);
+        $checkOutCutoff = Carbon::parse($dateIn)->addHours((int) $coH)->addMinutes((int) $coM);
 
-        $currentDate = $startDate->copy();
-        $total_expenditure_by_month = 0;
-        while ($currentDate < $endDate) {
-            $dailyTotals = $daily->showDailyCollection($currentDate->format('Y-m-d'));
-            $dailyTotals->each(function ($item, $key) use (&$monthlyTotals) {
-                $monthlyTotals['total_due'] += ($item['due'] ?? 0);
-            });
-
-            $total_expenditure_by_month += $this->sumOfExpenditure($currentDate->format('Y-m-d'));
-
-            $currentDate->addDay();
-        }
-
-        return $monthlyTotals['total_due'];
+        return Card::where(function ($q) use ($checkInStart, $checkInEnd, $checkOutCutoff) {
+            $q->where('arrival_date', '>=', $checkInStart)
+                ->where('arrival_date', '<', $checkInEnd)
+                ->orWhere(function ($sub) use ($checkInStart, $checkOutCutoff) {
+                    $sub->where('arrival_date', '<', $checkInStart)
+                        ->where(function ($q2) use ($checkOutCutoff) {
+                            $q2->where('departure_date', '>=', $checkOutCutoff)
+                                ->orWhereNull('departure_date');
+                        });
+                });
+        })->get();
     }
 
-    public function downloadData($date)
+    public function getExpenditure(string $dateIn)
     {
-        $this->date = Carbon::parse($date)->format('Y-m-d');
+        return Expense::where('expense_date', Carbon::parse($dateIn))->get();
+    }
 
-        if ($this->date == null) {
-            Notification::make()
-                ->title('NO Date Selected')
-                ->body('First Select a date')
-                ->warning()
-                ->send();
+    // ─── PAGE DATA ───
 
-            return null;
+    public function loadData(): void
+    {
+        if (blank($this->date)) {
+            Notification::make()->title('No Date Selected')->body('Please select a date first.')->warning()->send();
+
+            return;
         }
 
-        if ($this->setData()->first() == null && $this->expenditure()->first() == null) {
-            Notification::make()
-                ->title('No Data Exists')
-                ->body("No data exists for the {$this->date}")
-                ->warning()
-                ->send();
+        $data = $this->showDailyCollection($this->date);
+        $expenditure = $this->getExpenditure($this->date);
 
-            return null;
+        if ($data->isEmpty() && $expenditure->isEmpty()) {
+            Notification::make()->title('No Data')->body("No data exists for {$this->date}.")->warning()->send();
+
+            return;
         }
 
-        return $this->savePDF(); // now returns relative path used in Storage
+        $this->setData();
     }
 
     public function setData()
     {
-        $daily = new \App\Livewire\DailyRoomSheet;
         $this->expenditures = $this->getExpensesGroupedByType($this->date);
         $this->totalExpenditure = $this->sumOfExpenditure($this->date);
-        $this->dueBeforeToday = $this->DueBeforeOFThisMonth();
+        $this->dueBeforeToday = $this->dueBeforeThisMonth();
+        $this->totalsRentByMonth = $this->balanceBeforeThisMonth();
+        $this->data = $this->showDailyCollection($this->date);
 
-        $this->totalsRentByMonth = $this->balanceBeforeOFThisMonth();
-        $daily = new \App\Livewire\DailyRoomSheet;
-        $this->data = $daily->showDailyCollection($this->date);
-
-        return $this->data ?? null;
+        return $this->data;
     }
 
-    public function savePDF()
+    public function getExpensesGroupedByType(string $dateIn)
+    {
+        return Expense::where('expense_date', Carbon::parse($dateIn))->get()
+            ->groupBy('expense_type_id')
+            ->map(fn ($group) => [
+                'expense_type_name' => $group->first()->expenseType->name,
+                'total_amount' => $group->sum('amount'),
+            ]);
+    }
+
+    public function sumOfExpenditure(string $date): float
+    {
+        return (float) $this->getExpenditure($date)->sum('amount');
+    }
+
+    public function balanceBeforeThisMonth(): float
+    {
+        $start = Carbon::parse($this->date)->startOfMonth();
+        $end = Carbon::parse($this->date);
+        $total = 0.0;
+
+        for ($d = $start->copy(); $d->lt($end); $d->addDay()) {
+            $str = $d->format('Y-m-d');
+            $day = $this->showDailyCollection($str);
+            $total += $day->sum(fn ($i) => ($i['cash_collected'] ?? 0) + ($i['adv_adjust'] ?? 0) + ($i['due_collection'] ?? 0));
+            $total -= $this->sumOfExpenditure($str);
+        }
+
+        return $total;
+    }
+
+    public function dueBeforeThisMonth(): float
+    {
+        $start = Carbon::parse($this->date)->startOfMonth();
+        $end = Carbon::parse($this->date);
+        $total = 0.0;
+
+        for ($d = $start->copy(); $d->lt($end); $d->addDay()) {
+            $total += $this->showDailyCollection($d->format('Y-m-d'))->sum(fn ($i) => $i['due'] ?? 0);
+        }
+
+        return $total;
+    }
+
+    // ─── ACTIONS ───
+
+    public function openViewModal(string $cardNo): void
+    {
+        $card = Card::where('card_no', $cardNo)->firstOrFail();
+        $this->card = (new DailyCollectionCalculator($card))->calculate();
+        $this->selectedCardNo = $cardNo;
+        $this->dispatch('open-modal', id: 'view-modal');
+    }
+
+    public function exportToExcel()
+    {
+        if (empty($this->data) || (is_object($this->data) && $this->data->isEmpty())) {
+            Notification::make()->title('No Data Found')->body('Search with a different date.')->warning()->send();
+
+            return;
+        }
+
+        $this->setData();
+        $format = Carbon::parse($this->date)->format('d-m-y');
+
+        return Excel::download(new DailyRoomSheetExport($this->data, $this->date), "daily-room-sheet-{$format}.xlsx");
+    }
+
+    public function savePDF(): string
     {
         $this->date = Carbon::parse($this->date)->format('Y-m-d');
         $filePath = "{$this->date}-invoice.pdf";
 
-        // Save directly into storage/app/
         Pdf::view('pdf.invoice', [
             'data' => $this->data,
             'expenditures' => $this->expenditures,
@@ -293,38 +252,5 @@ class DailyRoomSheet extends Page
         ])->save(storage_path("app/{$filePath}"));
 
         return $filePath;
-    }
-
-    public function downloadPDF()
-    {
-        return Storage::download("{$this->date}-invoice.pdf");
-    }
-
-    public function openViewModal($cardNo)
-    {
-        $card = Card::where('card_no', $cardNo)->first();
-        // dd($card);
-        $this->card = (new DailyCollectionCalculator($card))->calculate();
-        // dd($this->card);
-
-        $this->dispatch('open-modal', id: 'view-modal');
-    }
-
-    public function exportToExcel()
-    {
-        if (! $this->data) {
-            Notification::make()
-                ->title('NO Data Found')
-                ->body('search with different date')
-                ->warning()
-                ->send();
-
-            return;
-        }
-        $this->setData();
-        // dd($this->data);
-        $format = Carbon::parse($this->date)->format('d-m-y');
-
-        return Excel::download(new DailyRoomSheetExport($this->data, $this->date), "daily-room-sheet-{$format}.xlsx");
     }
 }

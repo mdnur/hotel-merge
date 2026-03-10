@@ -3,16 +3,17 @@
 namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
+use Filament\Support\Icons\Heroicon;
 
 class CardRoomCalender extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
+    // protected static string|Heroicon|null $navigationIcon = Heroicon::CalendarDays;
 
     protected static ?string $navigationLabel = 'Room Calendar';
 
     protected static ?string $title = 'Room Availability';
 
-    protected static string $view = 'filament.pages.card-room-calender';
+    protected string $view = 'filament.pages.card-room-calender';
 
     public function rooms(): array
     {

@@ -8,18 +8,24 @@ use App\Models\Card;
 use App\Models\Expense;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use BackedEnum;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Form;
 use Filament\Pages\Page;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Maatwebsite\Excel\Facades\Excel;
 
-class TransitionHistory extends Page
+class TransitionHistory extends Page implements HasSchemas
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    use InteractsWithSchemas;
 
-    protected static string $view = 'filament.pages.transition-history';
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::DocumentText;
+
+    protected string $view = 'filament.pages.transition-history';
 
     public $payments;
 
@@ -95,7 +101,7 @@ class TransitionHistory extends Page
         $this->loadData();
     }
 
-    // public function form(Form $form): Form
+    // public function form(Schema $form): Schema
     // {
     //     return $form
     //         ->schema([
@@ -135,7 +141,7 @@ class TransitionHistory extends Page
         $this->loadData();
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $form): Schema
     {
         return $form->schema([
             DatePicker::make('date')

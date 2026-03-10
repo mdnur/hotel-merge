@@ -21,19 +21,19 @@ Route::get('/post', function () {
 Route::get('/download-invoice/{date}', [DownloadInvoiceController::class, 'download'])
     ->name('download.invoice');
 
-Route::get('/test', function () {
-    $specificDate = Carbon::parse(now());
+// Route::get('/test', function () {
+//     $specificDate = Carbon::parse(now());
 
-    // code in the class
-    // Define billing period
+//     // code in the class
+//     // Define billing period
 
-    $check_out_start_time = Setting::where('key', '=', 'check_out_time')->get()->first()->value;
-    $filterCheckOutStartTime = explode(':', $check_out_start_time);
+//     $check_out_start_time = Setting::where('key', '=', 'check_out_time')->get()->first()->value;
+//     $filterCheckOutStartTime = explode(':', $check_out_start_time);
 
-    $CheckOutStartTime = $specificDate->copy()->setTime((int) $filterCheckOutStartTime[0], (int) $filterCheckOutStartTime[1]); // Start at 5:00 AM
-    dd($CheckOutStartTime);
+//     $CheckOutStartTime = $specificDate->copy()->setTime((int) $filterCheckOutStartTime[0], (int) $filterCheckOutStartTime[1]); // Start at 5:00 AM
+//     dd($CheckOutStartTime);
 
-});
+// });
 
-// Route::get('/test2', [BookingTimeline::class, 'render']);
-Route::get('/test2', BookingTimeline::class);
+// // Route::get('/test2', [BookingTimeline::class, 'render']);
+// Route::get('/test2', BookingTimeline::class);

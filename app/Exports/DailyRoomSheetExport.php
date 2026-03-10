@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -13,7 +14,7 @@ class DailyRoomSheetExport implements FromCollection, WithHeadings, WithMapping
     public function __construct($data)
     {
         // Convert collection to array of arrays
-        $this->data = $data instanceof \Illuminate\Support\Collection
+        $this->data = $data instanceof Collection
             ? $data
             : collect($data); // Always keep it as collection
     }

@@ -11,7 +11,7 @@ class ReservationCountChart extends ChartWidget
 {
     use InteractsWithPageFilters;
 
-    protected static ?string $heading = null;
+    protected ?string $heading = null;
 
     protected int|string|array $columnSpan = 'full';
 
@@ -19,12 +19,12 @@ class ReservationCountChart extends ChartWidget
 
     public function getHeading(): string
     {
-        $startDate = ! is_null($this->filters['startDate'] ?? null) ?
-            Carbon::parse($this->filters['startDate']) :
+        $startDate = ! is_null($this->pageFilters['startDate'] ?? null) ?
+            Carbon::parse($this->pageFilters['startDate']) :
             Carbon::now()->startOfMonth();
 
-        $endDate = ! is_null($this->filters['endDate'] ?? null) ?
-            Carbon::parse($this->filters['endDate']) :
+        $endDate = ! is_null($this->pageFilters['endDate'] ?? null) ?
+            Carbon::parse($this->pageFilters['endDate']) :
             now();
 
         if ($startDate->format('F Y') === $endDate->format('F Y')) {
@@ -36,12 +36,12 @@ class ReservationCountChart extends ChartWidget
 
     protected function getData(): array
     {
-        $startDate = ! is_null($this->filters['startDate'] ?? null) ?
-            Carbon::parse($this->filters['startDate']) :
+        $startDate = ! is_null($this->pageFilters['startDate'] ?? null) ?
+            Carbon::parse($this->pageFilters['startDate']) :
             Carbon::now()->startOfMonth();
 
-        $endDate = ! is_null($this->filters['endDate'] ?? null) ?
-            Carbon::parse($this->filters['endDate']) :
+        $endDate = ! is_null($this->pageFilters['endDate'] ?? null) ?
+            Carbon::parse($this->pageFilters['endDate']) :
             now();
 
         // Fetch reservations within the date range

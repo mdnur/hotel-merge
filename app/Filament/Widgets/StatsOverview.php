@@ -18,12 +18,12 @@ class StatsOverview extends BaseWidget
         //     Carbon::parse($this->filters['month'])->format('m') :
         //     Carbon::now()->format('m');
 
-        $month = ! is_null($this->filters['month'] ?? null) ?
-            Carbon::parse($this->filters['month'])->format('m') :
+        $month = ! is_null($this->pageFilters['month'] ?? null) ?
+            Carbon::parse($this->pageFilters['month'])->format('m') :
             Carbon::now()->format('m');
 
-        $year = ! is_null($this->filters['month'] ?? null) ?
-            Carbon::parse($this->filters['month'])->format('Y') :
+        $year = ! is_null($this->pageFilters['month'] ?? null) ?
+            Carbon::parse($this->pageFilters['month'])->format('Y') :
             Carbon::now()->format('Y');
         $monthCreate = Carbon::createFromDate(null, $month, 1);
         $formattedMonth = $monthCreate->format('F Y');

@@ -4,12 +4,13 @@ namespace App\Filament\Pages;
 
 use App\Models\Room;
 use Filament\Pages\Page;
+use Filament\Support\Icons\Heroicon;
 
 class RoomCalendar extends Page
 {
-    protected static string $view = 'filament.pages.room-calendar';
+    protected string $view = 'filament.pages.room-calendar';
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    // protected static string|Heroicon|null $navigationIcon = Heroicon::DocumentText;
 
     public array $resources = [];
 
