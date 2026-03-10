@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Room;
+use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 
@@ -10,7 +11,7 @@ class RoomCalendar extends Page
 {
     protected string $view = 'filament.pages.room-calendar';
 
-    // protected static string|Heroicon|null $navigationIcon = Heroicon::DocumentText;
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::DocumentText;
 
     public array $resources = [];
 

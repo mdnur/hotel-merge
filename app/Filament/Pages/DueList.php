@@ -6,6 +6,7 @@ use App\Exports\DueListExport;
 use App\Http\Controllers\DailyCollectionCalculator;
 use App\Models\Card;
 use App\Models\PaymentType;
+use BackedEnum;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -14,7 +15,9 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class DueList extends Page
 {
-    // protected static BackedEnum|string|null $navigationIcon = Heroicon::DocumentText;
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::DocumentText;
+
+    // protected static BackedEnum|string|null $navigationIcon = Heroicon::Calendar;
 
     protected string $view = 'filament.pages.due-list';
 

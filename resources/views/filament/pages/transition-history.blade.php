@@ -261,7 +261,7 @@
 
 
     <x-filament::modal id="payment-history-modal">
-        <x-slot name="heading">
+        <x-slot name="title">
             Payment History for Card No: {{ $card['card_no'] ?? '' }}
         </x-slot>
 
@@ -290,7 +290,7 @@
         </div>
 
         <x-slot name="footer">
-            <x-filament::button x-on:click="$dispatch('close-modal', { id: 'payment-history-modal' })">
+            <x-filament::button wire:click="$dispatch('close-modal', { id: 'payment-history-modal' })">
                 Close
             </x-filament::button>
         </x-slot>
